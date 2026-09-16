@@ -6,8 +6,8 @@ logs for the paper
 > *Black-Box Auditing of Compositional Privacy Leakage in Multi-Agent Large Language Model
 > Dialogues: Path Discovery and Metamorphic Validation* (submitted to IEEE Access).
 
-Every number in Tables III, IV, V, A.1 and C.1 (value-exposed row), and the C.4 baselines, can
-be regenerated from this repository. Experiments 1 and 2 run offline in a few minutes.
+Every number in Tables III, IV, V, A.1, C.1 (value-exposed row), C.2 and C.3, and the C.4 baselines,
+can be regenerated from this repository. Experiments 1 and 2 run offline in a few minutes.
 Experiment 3 needs API access to the three observer models; its complete per-scenario logs are
 included, so all Experiment 3 tables can be recomputed without re-querying the models.
 
@@ -46,6 +46,7 @@ All commands are run from `code/`.
 | Table V (Exp. 3) | `python3 exp3_compare.py` (reads `e2e_progress_*.jsonl`; copy them from `results/logs/` into `code/`) | `results/logs/exp3_compare_output.txt` |
 | Table A.1 | `python3 -c "import exp3_rsweep as R; R.report(R.load_progress())"` (with `rsweep_progress.jsonl` in `code/`) | `results/logs/exp3_rsweep_report.txt` |
 | Table C.1, value-exposed row | `python3 exp3_detect.py --backend openai --model gpt-4o-mini-2024-07-18 --limit 30 --r 5 --raw` | `results/logs/exp3_detect_value_exposed.txt` |
+| Tables C.2, C.3 (Appendix C.3) | `python3 exp_c3_multipath.py` (controlled simulation, about 20 s) | `results/logs/exp_c3_multipath_run.txt`, `results/c3_results.json` |
 | Appendix C.4 baselines | `python3 exp3_compare.py` (rows "직접질문" = ask-the-model, "leave-one-out") | `results/logs/exp3_compare_output.txt` |
 
 Experiment 1 is deterministic (seeds 0–4) and takes about 10 s. Experiment 2 takes about
@@ -95,6 +96,8 @@ in the paper are in `data/dialogues/patil_dialogues_116.jsonl`.
   reported numbers come from them. The OpenAI organization id in one error message was redacted.
 * Table C.1 (rewritten-input rows) and Appendix C.2 were run interactively without a saved log;
   the scripts (`exp3_detect.py` without `--raw`, `exp3_block.py`) are included.
+* Appendix C.3 (`exp_c3_multipath.py`) is a deterministic controlled simulation (seeds 0–4); the
+  numbers in the paper are those in `results/logs/exp_c3_multipath_run.txt`.
 
 ## Change relative to the runs on the experiment machine
 
