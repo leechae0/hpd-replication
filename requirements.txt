@@ -1,0 +1,4 @@
+openai>=1.0
+spacy>=3.7,<3.8
+# python -m spacy download en_core_web_sm   (Experiment 2 and all MR transformations)
+# huggingface_hub, pyarrow                  (only for code/fetch_datasets.py)

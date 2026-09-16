@@ -1,0 +1,116 @@
+{"sid": "experiment_100", "abc": "A", "q": 9, "S": [5, 6, 7], "jac": 0.3333333333333333, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_101", "abc": "A", "q": 9, "S": [4, 5, 6, 7], "jac": 0.2857142857142857, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_102", "abc": "A", "q": 9, "S": [1, 3, 4, 6], "jac": 0.8, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_103", "abc": "A", "q": 9, "S": [3, 4, 5, 6, 7], "jac": 0.8333333333333334, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_104", "abc": "A", "q": 9, "S": [0, 3, 4, 5, 6, 7], "jac": 0.8333333333333334, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_105", "abc": "C"}
+{"sid": "experiment_106", "abc": "B", "q": 9, "S": [1, 3, 4, 5, 6], "jac": 0.8333333333333334, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": false, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_107", "abc": "A", "q": 9, "S": [0, 1, 2, 3, 5], "jac": 0.8333333333333334, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": true, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_108", "abc": "A", "q": 9, "S": [0, 3, 4, 5, 7], "jac": 0.3333333333333333, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": true}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_109", "abc": "A", "q": 9, "S": [3, 4, 5, 6], "jac": 0.8, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_10", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_110", "abc": "A", "q": 9, "S": [0, 1, 3, 5, 7], "jac": 1.0, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_111", "abc": "A", "q": 9, "S": [0, 1, 4, 5, 6, 7], "jac": 0.5714285714285714, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_112", "abc": "B", "q": 9, "S": [0, 3], "jac": 1.0, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_113", "abc": "A", "q": 9, "S": [4, 5, 6, 7], "jac": 0.5, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_115", "abc": "B", "q": 9, "S": [0, 2, 3, 4, 5, 6], "jac": 0.8333333333333334, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_116", "abc": "A", "q": 9, "S": [1, 2, 3, 5, 7], "jac": 0.6666666666666666, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": true}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_117", "abc": "A", "q": 9, "S": [2, 3, 4, 5, 7], "jac": 0.6666666666666666, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_118", "abc": "B", "q": 9, "S": [0, 3, 5, 7], "jac": 0.8, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_119", "abc": "A", "q": 9, "S": [0, 2, 3], "jac": 1.0, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_11", "abc": "A", "q": 9, "S": [2, 3, 5, 7], "jac": 1.0, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_120", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_121", "abc": "A", "q": 9, "S": [1, 3, 5, 7], "jac": 0.8, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_122", "abc": "A", "q": 9, "S": [4, 5, 7], "jac": 0.4, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_123", "abc": "A", "q": 9, "S": [3, 5, 7], "jac": 0.6, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_124", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_12", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_13", "abc": "A", "q": 1, "jac": null, "mono": 0.0}
+{"sid": "experiment_14", "abc": "B", "q": 9, "S": [3, 5, 6, 7], "jac": 0.8, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": false, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_15", "abc": "A", "q": 9, "S": [1, 2, 3, 5, 6, 7], "jac": 0.5714285714285714, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_16", "abc": "A", "q": 9, "S": [3, 5, 7], "jac": 0.75, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_17", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_18", "abc": "C"}
+{"sid": "experiment_19", "abc": "A", "q": 9, "S": [1, 3, 4, 5, 6, 7], "jac": 0.375, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_20", "abc": "A", "q": 9, "S": [0, 4, 5, 6, 7], "jac": 0.2857142857142857, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": true, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_21", "abc": "B", "q": 9, "S": [2, 3, 4, 5, 7], "jac": 0.42857142857142855, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_22", "abc": "B", "q": 9, "S": [1, 3, 5], "jac": 0.4, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_23", "abc": "A", "q": 9, "S": [0, 1, 2, 5], "jac": 1.0, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_24", "abc": "B", "q": 9, "S": [3, 4, 5, 6, 7], "jac": 0.5, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_25", "abc": "C"}
+{"sid": "experiment_26", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_27", "abc": "B", "q": 9, "S": [0, 1, 4, 6, 7], "jac": 0.42857142857142855, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_28", "abc": "A", "q": 9, "S": [2, 3, 4, 5, 6], "jac": 0.5, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_29", "abc": "A", "q": 9, "S": [0, 1, 2, 3, 5, 7], "jac": 0.8333333333333334, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_30", "abc": "B", "q": 9, "S": [0, 1, 2, 3, 4, 5, 6, 7], "jac": 0.75, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": true}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_31", "abc": "A", "q": 9, "S": [0, 2, 4, 5], "jac": 0.8, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_32", "abc": "A", "q": 1, "jac": null, "mono": 0.0}
+{"sid": "experiment_33", "abc": "A", "q": 9, "S": [2, 3, 5, 7], "jac": 0.3333333333333333, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_34", "abc": "A", "q": 9, "S": [1, 2, 7], "jac": 0.4, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_35", "abc": "C"}
+{"sid": "experiment_36", "abc": "B", "q": 9, "S": [1, 3, 6, 7], "jac": 0.16666666666666666, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_37", "abc": "A", "q": 9, "S": [1, 2, 3, 5, 6, 7], "jac": 0.5, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": true}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_38", "abc": "A", "q": 9, "S": [0, 1, 3, 4, 6, 7], "jac": 0.5714285714285714, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_39", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_40", "abc": "A", "q": 9, "S": [0, 1, 3, 5, 7], "jac": 0.8, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_42", "abc": "A", "q": 9, "S": [2, 3, 4, 5, 7], "jac": 0.42857142857142855, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_43", "abc": "A", "q": 9, "S": [1, 3, 4, 5, 7], "jac": 1.0, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_44", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_45", "abc": "A", "q": 9, "S": [1, 2, 3, 4, 5, 6, 7], "jac": 0.625, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_46", "abc": "A", "q": 9, "S": [1, 3, 4, 5, 7], "jac": 0.8333333333333334, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_47", "abc": "A", "q": 9, "S": [0, 3, 5, 6, 7], "jac": 0.5714285714285714, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_48", "abc": "C"}
+{"sid": "experiment_49", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_50", "abc": "B", "q": 9, "S": [0, 3, 4, 5], "jac": 0.3333333333333333, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.125}
+{"sid": "experiment_51", "abc": "B", "q": 9, "S": [1, 3, 5, 6], "jac": 1.0, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_52", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_53", "abc": "A", "q": 9, "S": [0, 1, 5, 6], "jac": 0.4, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_54", "abc": "B", "q": 9, "S": [0, 1, 2, 3, 5, 6, 7], "jac": 0.5714285714285714, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_55", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_56", "abc": "A", "q": 9, "S": [0, 1, 3, 5], "jac": 1.0, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_57", "abc": "A", "q": 9, "S": [2, 3, 4, 5, 7], "jac": 0.5, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": true, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_58", "abc": "A", "q": 9, "S": [3, 5, 6], "jac": 0.75, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_59", "abc": "A", "q": 9, "S": [1, 3, 4, 5, 6, 7], "jac": 1.0, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_5", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_60", "abc": "A", "q": 9, "S": [4, 5, 6], "jac": 0.3333333333333333, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_61", "abc": "C"}
+{"sid": "experiment_62", "abc": "A", "q": 9, "S": [0, 2, 3, 4, 7], "jac": 1.0, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_63", "abc": "A", "q": 9, "S": [0, 3, 5, 7], "jac": 0.8, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_64", "abc": "C"}
+{"sid": "experiment_65", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_66", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_67", "abc": "A", "q": 9, "S": [1, 2, 3, 4, 5], "jac": 0.8333333333333334, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_68", "abc": "A", "q": 9, "S": [0, 3, 4, 5, 7], "jac": 0.6666666666666666, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_6", "abc": "A", "q": 9, "S": [1, 5, 7], "jac": 0.75, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_70", "abc": "A", "q": 9, "S": [3, 4, 5, 6, 7], "jac": 0.2857142857142857, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_71", "abc": "B", "q": 9, "S": [1, 2, 3, 4, 5], "jac": 0.5, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_72", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_73", "abc": "B", "q": 9, "S": [0, 3, 4, 6], "jac": 0.8, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_74", "abc": "A", "q": 9, "S": [5, 6, 7], "jac": 0.4, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_75", "abc": "B", "q": 9, "S": [3, 5, 7], "jac": 0.75, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_76", "abc": "C"}
+{"sid": "experiment_77", "abc": "A", "q": 9, "S": [1, 2, 3, 4, 5, 7], "jac": 0.5, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_78", "abc": "A", "q": 9, "S": [3, 4, 5, 6, 7], "jac": 0.2857142857142857, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_79", "abc": "C"}
+{"sid": "experiment_7", "abc": "A", "q": 9, "S": [0, 3, 5, 6, 7], "jac": 0.6666666666666666, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": true, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_80", "abc": "A", "q": 9, "S": [5, 6, 7], "jac": 0.5, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_81", "abc": "A", "q": 9, "S": [2, 3, 5, 7], "jac": 0.16666666666666666, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.125}
+{"sid": "experiment_82", "abc": "A", "q": 9, "S": [3, 4, 5, 6, 7], "jac": 0.6666666666666666, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_83", "abc": "A", "q": 9, "S": [1, 3, 4, 5, 6, 7], "jac": 0.2857142857142857, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_84", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_85", "abc": "A", "q": 9, "S": [3, 4, 5, 6, 7], "jac": 0.25, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": false}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_86", "abc": "A", "q": 9, "S": [3, 5, 6, 7], "jac": 0.5, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_88", "abc": "A", "q": 9, "S": [0, 1, 3, 6], "jac": 0.8, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": false, "MR4": true}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_89", "abc": "A", "q": 9, "S": [5, 6, 7], "jac": 0.3333333333333333, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_8", "abc": "B", "q": 9, "S": [0, 1, 2, 3, 7], "jac": 0.8333333333333334, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_90", "abc": "A", "q": 9, "S": [0, 1, 5, 6, 7], "jac": 0.3333333333333333, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.125}
+{"sid": "experiment_91", "abc": "A", "q": 9, "S": [1, 3, 4, 5], "jac": 0.5, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_92", "abc": "A", "q": 9, "S": [0, 1, 3, 5], "jac": 0.8, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": false, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_93", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_94", "abc": "A", "q": 9, "S": [1, 5, 7], "jac": 0.6, "cert": false, "cd": {"base": true, "single": true, "MR1": false, "MR3": true, "MR4": false}, "cert4": false, "mono": 0.0}
+{"sid": "experiment_95", "abc": "A", "q": 9, "S": [1, 2, 3, 5, 6, 7], "jac": 0.8571428571428571, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_96", "abc": "A", "q": 1, "jac": null}
+{"sid": "experiment_97", "abc": "A", "q": 9, "S": [2, 5, 7], "jac": 0.6, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_98", "abc": "B", "q": 9, "S": [3, 4, 5, 6, 7], "jac": 0.42857142857142855, "cert": false, "cd": {"base": true, "single": true, "MR1": true, "MR3": false, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_99", "abc": "A", "q": 9, "S": [0, 2, 3, 7], "jac": 0.6, "cert": true, "cd": {"base": true, "single": true, "MR1": true, "MR3": true, "MR4": true}, "cert4": true, "mono": 0.0}
+{"sid": "experiment_9", "abc": "A", "q": 1, "jac": null}
