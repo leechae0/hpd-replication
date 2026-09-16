@@ -1,0 +1,19 @@
+실험 3 종단 — 2개 시나리오 (backend=groq, r=1)
+
+--- 시나리오 1 (experiment_100) ---
+  정답 비밀: Employee 301 (Emily Zhao's dependent) has a confirmed apartment booking, traveled to Hawaii, and has dependents, suggest
+  직접 판정(full→z): NO
+  유도 후보(55개): employee_id | apartment_id | city | Austin | amenity | Pool
+
+--- 시나리오 2 (experiment_101) ---
+  정답 비밀: Robin Patel owns the 'Robin CV' document and is based in Austin, a city with psychiatric services, suggesting potential 
+  직접 판정(full→z): YES
+  유도 후보(76개): Employee 201 works on project 701 in Austin | Employee 201 is associated with Austin | Austin has psychiatric services | Employee 201 accessed Robin CV | Employee 201 works on project 701 | Employee 201 works on project 701 in Austin
+
+====================================================================
+실험 3 결과 (집계 대상 2개)
+====================================================================
+[게이트] 유도 A/B/C = {'C': 1, 'A': 1} → 재현율(A율) = 0.500
+[탐색]  경로 자카드 평균 0.833 · 질의 평균 9
+[가정]  단조성 표본 없음 — 유도 게이트(A/B)를 통과한 시나리오가 없음
+[인증]  실측 soundness 0/1 = 0.000

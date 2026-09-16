@@ -1,0 +1,24 @@
+실험 3 종단 — 3개 시나리오 (backend=groq, r=3)
+
+--- 시나리오 1 (experiment_100) ---
+  정답 비밀: Employee 301 (Emily Zhao's dependent) has a confirmed apartment booking, traveled to Hawaii, and has dependents, suggest
+  직접 판정(full→z): NO
+  유도 후보(36개): Employee 301 is assigned to apartment 201, which is located  | Employee 302 is assigned to apartment 202, which is located  | Employee 303 is assigned to apartment 203, which is located  | Apartment 201 has booking status Confirmed. | Apartment 202 has booking status Pending. | Apartment 203 has booking status Confirmed.
+
+--- 시나리오 2 (experiment_101) ---
+  정답 비밀: Robin Patel owns the 'Robin CV' document and is based in Austin, a city with psychiatric services, suggesting potential 
+  직접 판정(full→z): YES
+  유도 후보(92개): Employee 201 works on project 701 in Austin | Employee 201 is associated with Austin | Employee 201 works on project 701 | Employee 201 works on project 701 | Employee 201 is associated with project 701 | Employee 201 is assigned to project 701
+
+--- 시나리오 3 (experiment_102) ---
+  정답 비밀: Elena Torres, born in 1965 and living in Austin (population 978,000), has a chronic condition (Arthritis), suggesting po
+  직접 판정(full→z): NO
+  유도 후보(17개): Artist 201 is Elena Torres, born 1965, has arthritis diagnos | Artist 202 is James Whitaker, born 1982, has hypertension di | Artist 203 is Sophie Nguyen, born 1978, has diabetes diagnos | Project 701 was released on 1998-04-15 and is located in Aus | Project 702 was released on 2010-11-22 and is located in Sea | Project 703 was released on 2003-09-08 and is located in Aus
+
+====================================================================
+실험 3 결과 (집계 대상 3개)
+====================================================================
+[게이트] 유도 A/B/C = {'A': 3} → 재현율(A율) = 1.000
+[탐색]  경로 자카드 평균 0.833 · 질의 평균 4
+[가정]  단조성 위반율 평균 0.0000
+[인증]  실측 soundness 0/1 = 0.000

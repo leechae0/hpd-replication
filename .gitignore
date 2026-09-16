@@ -1,0 +1,15 @@
+# third-party datasets (downloaded by code/fetch_patil.py and code/fetch_datasets.py)
+data/patil/*.json
+data/hotpot_dev_distractor_v1.json
+data/musique_ans_v1.0_dev.jsonl
+code/data/
+# progress files written by re-runs (the reported runs live in results/logs/)
+code/*.jsonl
+code/*_run*.txt
+# secrets and local junk
+.env
+*.key
+__pycache__/
+*.pyc
+.idea/
+.DS_Store
