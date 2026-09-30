@@ -1,0 +1,121 @@
+{
+ "n": 116,
+ "rates": {
+  "GPT-4o-mini": {
+   "induction": 0.9655172413793104,
+   "path_returned": 0.6206896551724138,
+   "final_5of5": 0.3706896551724138
+  },
+  "Qwen3.6-27B": {
+   "induction": 0.8793103448275862,
+   "path_returned": 0.7586206896551724,
+   "final_5of5": 0.6120689655172413
+  },
+  "Gemini 2.5 Flash-Lite": {
+   "induction": 0.7586206896551724,
+   "path_returned": 0.7413793103448276,
+   "final_5of5": 0.3879310344827586
+  }
+ },
+ "pairs": {
+  "GPT-4o-mini vs Qwen3.6-27B": {
+   "induction": {
+    "only_first": 12,
+    "only_second": 2,
+    "p_exact": 0.012939453125,
+    "p_holm": 0.02587890625
+   },
+   "path_returned": {
+    "only_first": 9,
+    "only_second": 25,
+    "p_exact": 0.00904118549078703,
+    "p_holm": 0.027123556472361088
+   },
+   "final_5of5": {
+    "only_first": 7,
+    "only_second": 35,
+    "p_exact": 1.5097200957825407e-05,
+    "p_holm": 4.529160287347622e-05
+   },
+   "jaccard": {
+    "n_both": 63,
+    "mean_diff": -0.11959561602418746,
+    "ci95": [
+     -0.16783824640967498,
+     -0.07348828420256992
+    ],
+    "wilcoxon_p": null,
+    "wilcoxon_p_holm": 1.0
+   }
+  },
+  "GPT-4o-mini vs Gemini 2.5 Flash-Lite": {
+   "induction": {
+    "only_first": 25,
+    "only_second": 1,
+    "p_exact": 8.046627044677734e-07,
+    "p_holm": 2.4139881134033203e-06
+   },
+   "path_returned": {
+    "only_first": 13,
+    "only_second": 27,
+    "p_exact": 0.03847730828420026,
+    "p_holm": 0.07695461656840052
+   },
+   "final_5of5": {
+    "only_first": 24,
+    "only_second": 26,
+    "p_exact": 0.887724827340783,
+    "p_holm": 0.887724827340783
+   },
+   "jaccard": {
+    "n_both": 59,
+    "mean_diff": -0.016626311541565783,
+    "ci95": [
+     -0.06700968523002422,
+     0.0339184826472962
+    ],
+    "wilcoxon_p": null,
+    "wilcoxon_p_holm": 1.0
+   }
+  },
+  "Qwen3.6-27B vs Gemini 2.5 Flash-Lite": {
+   "induction": {
+    "only_first": 22,
+    "only_second": 8,
+    "p_exact": 0.016124801710247993,
+    "p_holm": 0.02587890625
+   },
+   "path_returned": {
+    "only_first": 13,
+    "only_second": 11,
+    "p_exact": 0.8388197422027588,
+    "p_holm": 0.8388197422027588
+   },
+   "final_5of5": {
+    "only_first": 37,
+    "only_second": 11,
+    "p_exact": 0.00022224496262168714,
+    "p_holm": 0.0004444899252433743
+   },
+   "jaccard": {
+    "n_both": 75,
+    "mean_diff": 0.09850793650793652,
+    "ci95": [
+     0.05152380952380952,
+     0.1447936507936508
+    ],
+    "wilcoxon_p": null,
+    "wilcoxon_p_holm": 1.0
+   }
+  }
+ },
+ "failure_overlap": {
+  "failed_all": 28,
+  "passed_all": 18,
+  "pairwise_jaccard": {
+   "GPT-4o-mini vs Qwen3.6-27B": 0.475,
+   "GPT-4o-mini vs Gemini 2.5 Flash-Lite": 0.4845360824742268,
+   "Qwen3.6-27B vs Gemini 2.5 Flash-Lite": 0.4146341463414634
+  }
+ }
+}

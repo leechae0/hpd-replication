@@ -1,0 +1,33 @@
+cases: 632  (Counter({'patil·2': 116, 'patil·4': 116, 'synthetic·1': 100, 'synthetic·2': 100, 'synthetic·3': 100, 'synthetic·4': 100}))
+
+TABLE C.2  Multiple-path discovery
+scenario·pathserror   paths found single/re/full     full rec.  no left   queries s/f
+synthetic·1   none    1.00 / 1.00 / 1.00                 1.000    1.000     11 / 38   
+synthetic·2   none    1.00 / 1.32 / 2.00                 1.000    1.000     11 / 69   
+synthetic·3   none    1.00 / 1.51 / 3.00                 1.000    1.000     11 / 99   
+synthetic·4   none    1.00 / 1.77 / 4.00                 1.000    1.000     11 / 127  
+patil·2       none    1.00 / 1.00 / 2.00                 1.000    1.000     10 / 56   
+patil·4       none    1.00 / 1.01 / 4.00                 1.000    1.000     11 / 74   
+synthetic·1   20%     0.99 / 1.01 / 0.98                 0.928    0.930     11 / 43   
+synthetic·2   20%     0.98 / 1.28 / 1.96                 0.874    0.882     11 / 75   
+synthetic·3   20%     0.98 / 1.44 / 2.94                 0.814    0.824     11 / 107  
+synthetic·4   20%     0.98 / 1.70 / 3.91                 0.784    0.794     11 / 136  
+patil·2       20%     0.98 / 1.00 / 1.97                 0.841    0.845     10 / 60   
+patil·4       20%     0.98 / 1.00 / 3.87                 0.672    0.679     11 / 79   
+
+TABLE C.3  Re-inference by blocking method
+scenario·pathserror   cues hidden opt/greedy       first  random     all   agree
+synthetic·1   none    1.00 / 1.00               0.000   0.646   0.000   1.000
+synthetic·2   none    1.32 / 1.32               0.630   0.858   0.000   1.000
+synthetic·3   none    1.84 / 1.84               0.880   0.854   0.000   1.000
+synthetic·4   none    2.12 / 2.22               0.960   0.894   0.000   0.900
+patil·2       none    1.00 / 1.00               0.000   0.567   0.000   1.000
+patil·4       none    1.01 / 1.01               0.009   0.729   0.000   1.000
+synthetic·1   20%     0.98 / 0.98               0.066   0.650   0.020   1.000
+synthetic·2   20%     1.31 / 1.31               0.646   0.856   0.032   1.000
+synthetic·3   20%     1.82 / 1.82               0.890   0.856   0.036   1.000
+synthetic·4   20%     2.10 / 2.20               0.966   0.898   0.046   0.904
+patil·2       20%     1.00 / 1.00               0.031   0.567   0.003   1.000
+patil·4       20%     1.02 / 1.02               0.055   0.729   0.007   1.000
+
+written: /home/claude/hpd-replication/results/c3_results.json

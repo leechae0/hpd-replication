@@ -6,7 +6,7 @@ exp3_compare.py — 관찰자 모델별 실험 3-1 결과를 한 표로 비교�
   python3 exp3_compare.py                 # 전부
   python3 exp3_compare.py --sids common   # 모든 모델이 공통으로 완료한 시나리오만(공정 비교)
 """
-import glob, json, argparse, statistics as st, re
+import glob, json, argparse, statistics as st, re, os
 from collections import Counter
 from math import sqrt
 
@@ -46,13 +46,14 @@ def summarize(done):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sids", choices=["all", "common"], default="all")
+    ap.add_argument("--glob", default="e2e_progress_*.jsonl", help='e.g. "e2e_progress_*_mr4fix.jsonl"')
     a = ap.parse_args()
-    files = sorted(glob.glob("e2e_progress_*.jsonl"))
+    files = sorted(glob.glob(a.glob))
     if not files:
         print("e2e_progress_*.jsonl 이 없습니다. exp3_endtoend.py 를 먼저 돌리세요."); return
     runs = {}
     for f in files:
-        m = re.match(r"e2e_progress_(.+?)_(.+)_r(\d+)\.jsonl", f)
+        m = re.match(r"e2e_progress_(.+?)_(.+)_r(\d+)(_\w+)?\.jsonl", os.path.basename(f))
         label = f"{m.group(1)}:{m.group(2)} (r={m.group(3)})" if m else f
         runs[label] = load(f)
     if a.sids == "common":

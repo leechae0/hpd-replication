@@ -1,0 +1,9 @@
+paired scenarios: 116
+
+pair                                    induction a/b, p(Holm)    path a/b, p           final 5/5 a/b, p      Jaccard diff [95% CI] (n)     
+GPT-4o-mini vs Qwen3.6-27B              12/2, 0.026               9/25, 0.027           9/39, <0.001          -0.120 [-0.168, -0.073] (63)
+GPT-4o-mini vs Gemini 2.5 Flash-Lite    25/1, <0.001              13/27, 0.077          19/26, 0.371          -0.017 [-0.067, +0.034] (59)
+Qwen3.6-27B vs Gemini 2.5 Flash-Lite    22/8, 0.026               13/11, 0.839          31/8, <0.001          +0.099 [+0.052, +0.145] (75)
+
+failed with all three observers: 30; passed with all three: 20; pairwise Jaccard of failure sets: GPT-4o-mini vs Qwen3.6-27B: 0.44, GPT-4o-mini vs Gemini 2.5 Flash-Lite: 0.53, Qwen3.6-27B vs Gemini 2.5 Flash-Lite: 0.50
+written: /home/claude/hpd-replication/results/exp3_stats.json

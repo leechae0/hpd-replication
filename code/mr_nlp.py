@@ -29,12 +29,76 @@ except OSError as e:  # pragma: no cover
         "    python -m spacy download en_core_web_sm"
     ) from e
 
-NEW_NAMES = ["Zara", "Kenji", "Priya", "Owen", "Mara", "Tobias", "Lena", "Rahul"]
+NEW_NAMES = ["Zara", "Kenji", "Priya", "Owen", "Mara", "Tobias", "Lena", "Rahul",
+             "Ingrid", "Mateo", "Sunita", "Bjorn", "Amara", "Dmitri", "Yuki", "Callum"]
+
+# ---- MR4 fidelity fix (2026-09-21) ----------------------------------------------------------
+# spaCy NER labels some non-person tokens as PERSON in record-style dialogues: key=value fields
+# such as "employee_id=201", street names such as "Main St", and capitalized values such as
+# "Chronic Asthma" or "Lead Engineer". Renaming those does not change identity only; it corrupts
+# the data. A PERSON candidate is now renamed only if it is name-like (capitalized alphabetic
+# words, no digits or "=", no street suffix) AND it is a dialogue speaker, or the value of a
+# person-name field (name, *_name except organization-like prefixes, emergency_contact, owner,
+# manager, ...), or a word of such an accepted name. The 2026-08/09 runs used the unfiltered
+# version; results/logs/*_mr4fix.jsonl hold the MR4 re-judgments with this filter.
+_NAME_RE = re.compile(r"^[A-Z][a-z]*(?:[-'][A-Z]?[a-z]+)*(?: [A-Z][a-z]*(?:[-'][A-Z]?[a-z]+)*){0,2}$")
+_STREET_SUFFIX = {"st", "rd", "ave", "blvd", "ln", "dr", "way", "street", "road", "avenue", "lane", "drive"}
+_ORG_PREFIX = {"company", "organization", "org", "project", "program", "product", "course", "service", "line",
+               "district", "file", "table", "event", "item", "team", "department", "brand", "store", "school",
+               "hospital", "clinic", "drug", "medication", "vendor", "supplier", "bank", "hotel", "airline",
+               "route", "station", "city", "warehouse", "facility", "venue", "stadium", "region",
+               "document", "carrier", "college", "university", "institute", "report", "policy", "plan",
+               "account", "device", "app", "system", "software", "tool", "model", "vehicle", "ship",
+               "aircraft", "flight", "hotel", "restaurant", "shop", "fund", "grant", "scholarship", "award"}
+_PERSON_KEYS = {"emergency_contact", "director", "contact", "manager", "owner", "author", "assigned_to",
+                "reviewer", "physician", "doctor", "nurse", "patient", "student", "employee", "customer",
+                "client", "user", "tenant", "driver", "pilot", "coach", "player", "guardian", "spouse",
+                "supervisor", "recipient", "sender", "approved_by", "reported_by", "created_by",
+                "accessed_by", "requested_by", "parent", "child", "dependent", "member", "applicant",
+                "candidate", "instructor", "teacher", "advisor", "mentor", "agent", "officer", "lead"}
 
 
-# ==============================================================================
-# MR4 — 개명: NER로 인물을 찾고, 대명사·소유격을 규칙으로 연결한 뒤 결정적 치환
-# ==============================================================================
+def _is_person_key(key):
+    k = key.lower()
+    if k == "name" or k in _PERSON_KEYS:
+        return True
+    if k.endswith("_name"):
+        return k[:-5] not in _ORG_PREFIX
+    return False
+
+
+def _name_like(cand):
+    if not _NAME_RE.match(cand):
+        return False
+    words = cand.split()
+    return words[-1].lower() not in _STREET_SUFFIX
+
+
+def _person_field_values(text):
+    """Values of person-name fields (key=value records), whether or not NER tagged them."""
+    for key, val in re.findall(r"(\w+)\s*=\s*([A-Z][A-Za-z'\-]*(?: [A-Z][A-Za-z'\-]*){0,2})(?=\s*[,;)]|\s*$)", text, flags=re.M):
+        if key.lower() != "name" and _is_person_key(key):     # bare "name" is ambiguous (files, places, stores)
+            yield val
+
+
+def _select_names(text, candidates, speakers):
+    """Keep the candidates that are dialogue speakers, values of person-name fields, or words of those."""
+    accepted = set()
+    for c in candidates:
+        if not _name_like(c):
+            continue
+        if c in speakers:
+            accepted.add(c); continue
+        keys = re.findall(r"(\w+)\s*=\s*" + re.escape(c) + r"(?=\s*[,;)]|\s*$)", text, flags=re.M)
+        if any(_is_person_key(k) for k in keys):
+            accepted.add(c)
+    words = {w for a in accepted for w in a.split()}
+    for c in candidates:
+        if c not in accepted and _name_like(c) and all(w in words for w in c.split()):
+            accepted.add(c)
+    return accepted
+
+
 def _person_spans(doc):
     """PERSON 개체명 → 표면형별 등장 스팬."""
     people = {}
@@ -71,8 +135,10 @@ def _rule_coref(doc):
 def mr4_rename(text):
     """인물을 새 이름으로 일괄 교체. 반환: (새 텍스트, 매핑, 상호참조 링크)."""
     doc = _NLP(text)
-    names = list(set(_person_spans(doc).keys()) | _speaker_names(text))
-    pool = [n for n in NEW_NAMES if n not in names]
+    speakers = _speaker_names(text)
+    field_values = set(_person_field_values(text))          # names NER may miss (e.g. non-Western names in name fields)
+    names = sorted(_select_names(text, set(_person_spans(doc).keys()) | speakers | field_values, speakers))
+    pool = [n for n in NEW_NAMES if not re.search(rf"\b{n}\b", text)]
     mapping = {}
     for i, n in enumerate(sorted(names, key=lambda s: -len(s))):  # 긴 이름 먼저
         mapping[n] = pool[i] if i < len(pool) else f"Person{i}"
