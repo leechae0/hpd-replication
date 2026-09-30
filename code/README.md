@@ -102,6 +102,30 @@ in the paper are in `data/dialogues/patil_dialogues_116.jsonl`.
 * Appendix C.3 (`exp_c3_multipath.py`) is a deterministic controlled simulation (seeds 0–4); the
   numbers in the paper are those in `results/logs/exp_c3_multipath_run.txt`.
 
+## Human annotation (reviewer items: secret induction and MR fidelity)
+
+The two audit sheets written by `exp3_induction.py sheet` and `exp3_mr_fidelity.py sheet` are turned
+into annotator workbooks and read back as follows (no API calls):
+
+```bash
+python3 make_annotation_xlsx.py          # -> results/annotation_v2/작업1_유도판정.xlsx (348 rows), 작업2_변환판정.xlsx (90 rows)
+# annotators fill the single '판정' column (instructions: results/annotation_v2/README_판정자용.md and the '안내' tab)
+python3 collect_annotations.py task1 작업1_유도판정_<A>.xlsx [작업1_유도판정_<B>.xlsx]   # -> ann1/ann2 of annotation_sheet.csv
+python3 collect_annotations.py task2 작업2_변환판정_<A>.xlsx [작업2_변환판정_<B>.xlsx]   # -> ann1/ann2 of fidelity_sheet.csv
+python3 exp3_induction.py score ;  python3 exp3_mr_fidelity.py score
+```
+
+What the annotators see. Task 1: the benchmark secret and every candidate the observer returned, in
+the order it returned them; candidates are grouped only by secret-independent rules (sentences /
+table-dump lines / fragments under 4 words), the observer identity is hidden and the three observers
+of a scenario appear in random order (seed 20260930). Task 2: the full excerpt before and after each
+transformation, with differing words marked by a plain `difflib` word diff that is independent of
+`mr_nlp.py`; for MR4 also the renamed secret and the name mapping. With two annotators,
+`collect_annotations.py` writes the disagreeing rows to `*_disagreements.csv`; the agreed label goes
+in the `final` column of the main CSV. (The v1 sheets, 2026-09-22, ranked the Task 1 candidates by
+similarity to the secret and showed only a diff in Task 2; they were replaced before any labels were
+collected.)
+
 ## Change relative to the runs on the experiment machine
 
 `exp2_certify.py`: the "surface" controlled observer is keyed to the phrase `earlier today`, which
