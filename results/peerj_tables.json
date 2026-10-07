@@ -1,0 +1,95 @@
+{
+  "GPT-4o-mini": {
+    "scenarios": 116,
+    "lexical_induction": 0.966,
+    "human_induction": {
+      "semantic": 0.7103448275862069,
+      "ci95": [
+        0.5172413793103448,
+        0.903448275862069
+      ],
+      "annotated": 24
+    },
+    "paths_returned": 72,
+    "mean_path_length": 4.22,
+    "agreement_jaccard": 0.594,
+    "sufficiency": 0.96,
+    "single_cue": 0.94,
+    "both_structural": 0.903,
+    "MR1": 0.88,
+    "MR3": 0.76,
+    "MR4": 0.76,
+    "all_five": 0.597,
+    "all_five_ci": [
+      0.48,
+      0.7
+    ],
+    "all_five_of_116": 43,
+    "removed_by_invariance": "22/65 = 0.34",
+    "four_of_five": 0.819,
+    "monotonicity_probed_scenarios": 104,
+    "monotonicity_violation_mean": 0.0072
+  },
+  "Qwen3.6-27B": {
+    "scenarios": 116,
+    "lexical_induction": 0.879,
+    "human_induction": {
+      "semantic": 0.7672413793103449,
+      "ci95": [
+        0.5948275862068966,
+        0.9224137931034482
+      ],
+      "annotated": 36
+    },
+    "paths_returned": 88,
+    "mean_path_length": 4.48,
+    "agreement_jaccard": 0.72,
+    "sufficiency": 0.99,
+    "single_cue": 1.0,
+    "both_structural": 0.989,
+    "MR1": 0.92,
+    "MR3": 0.94,
+    "MR4": 0.88,
+    "all_five": 0.807,
+    "all_five_ci": [
+      0.71,
+      0.88
+    ],
+    "all_five_of_116": 71,
+    "removed_by_invariance": "16/87 = 0.18",
+    "four_of_five": 0.932,
+    "monotonicity_probed_scenarios": 104,
+    "monotonicity_violation_mean": 0.0036
+  },
+  "Gemini 2.5 Flash-Lite": {
+    "scenarios": 116,
+    "lexical_induction": 0.759,
+    "human_induction": {
+      "semantic": 0.8,
+      "ci95": [
+        0.6603448275862068,
+        0.9137931034482758
+      ],
+      "annotated": 48
+    },
+    "paths_returned": 86,
+    "mean_path_length": 4.53,
+    "agreement_jaccard": 0.623,
+    "sufficiency": 1.0,
+    "single_cue": 1.0,
+    "both_structural": 1.0,
+    "MR1": 0.78,
+    "MR3": 0.77,
+    "MR4": 0.6,
+    "all_five": 0.523,
+    "all_five_ci": [
+      0.42,
+      0.63
+    ],
+    "all_five_of_116": 45,
+    "removed_by_invariance": "41/86 = 0.48",
+    "four_of_five": 0.733,
+    "monotonicity_probed_scenarios": 88,
+    "monotonicity_violation_mean": 0.0043
+  }
+}

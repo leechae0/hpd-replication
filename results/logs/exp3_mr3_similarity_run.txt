@@ -1,0 +1,4 @@
+distinct (scenario, path) excerpts: 210; inserted sentences: 420
+max cosine between an inserted sentence and any utterance of its excerpt: mean 0.350, median 0.341, 95th percentile 0.467, max 0.475
+cosine between an inserted sentence and the benchmark secret: mean 0.389, max 0.672
+reference, cosine between utterances of the same excerpt: mean 0.636, 5th percentile 0.224

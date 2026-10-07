@@ -1,0 +1,89 @@
+{
+ "openai_gpt-4o-mini-2024-07-18": {
+  "n": 116,
+  "lexical": 0.9655172413793104,
+  "annotated": 24,
+  "n_lex1_annotated": 20,
+  "n_lex0_annotated": 4,
+  "M_given_lex1": 0.7,
+  "M_given_lex0": 1.0,
+  "counts_lex1": {
+   "M": 14,
+   "A": 4,
+   "X": 2
+  },
+  "counts_lex0": {
+   "M": 4,
+   "A": 0,
+   "X": 0
+  },
+  "semantic": 0.7103448275862069,
+  "ci95": [
+   0.5172413793103448,
+   0.903448275862069
+  ],
+  "agreement_on_annotated": 0.5833333333333334,
+  "notes": {
+   "model-missed": 2,
+   "benchmark-label-inconsistent": 4
+  }
+ },
+ "openrouter_google_gemini-2.5-flash-lite": {
+  "n": 116,
+  "lexical": 0.7586206896551724,
+  "annotated": 48,
+  "n_lex1_annotated": 20,
+  "n_lex0_annotated": 28,
+  "M_given_lex1": 0.85,
+  "M_given_lex0": 0.6428571428571429,
+  "counts_lex1": {
+   "M": 17,
+   "A": 3,
+   "X": 0
+  },
+  "counts_lex0": {
+   "M": 18,
+   "A": 8,
+   "X": 2
+  },
+  "semantic": 0.8,
+  "ci95": [
+   0.6603448275862068,
+   0.9137931034482758
+  ],
+  "agreement_on_annotated": 0.5625,
+  "notes": {
+   "model-missed": 5,
+   "benchmark-label-inconsistent": 8
+  }
+ },
+ "openrouter_qwen_qwen3.6-27b": {
+  "n": 116,
+  "lexical": 0.8620689655172413,
+  "annotated": 36,
+  "n_lex1_annotated": 20,
+  "n_lex0_annotated": 16,
+  "M_given_lex1": 0.75,
+  "M_given_lex0": 0.875,
+  "counts_lex1": {
+   "M": 15,
+   "A": 4,
+   "X": 1
+  },
+  "counts_lex0": {
+   "M": 14,
+   "A": 2,
+   "X": 0
+  },
+  "semantic": 0.7672413793103449,
+  "ci95": [
+   0.5948275862068966,
+   0.9224137931034482
+  ],
+  "agreement_on_annotated": 0.4722222222222222,
+  "notes": {
+   "model-missed": 2,
+   "benchmark-label-inconsistent": 5
+  }
+ }
+}

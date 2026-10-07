@@ -1,0 +1,89 @@
+{
+ "per_observer": {
+  "openai_gpt-4o-mini-2024-07-18": {
+   "scenarios": 30,
+   "no_path_any_order": 11,
+   "api_judgments_sent": 1066,
+   "logical_judgments": 2184,
+   "distinct_paths_mean": 4.842105263157895,
+   "distinct_paths_max": 9,
+   "one_path_scenarios": 2,
+   "scenarios_with_path": 19,
+   "path_len_mean": 4.105263157894737,
+   "path_len_sd": 0.9676198058342229,
+   "path_len_min": 2,
+   "path_len_max": 6,
+   "path_len_within_range_mean": 1.368421052631579,
+   "stability_pairwise_jaccard": 0.6850041771094403,
+   "jaccard_to_benchmark_mean": 0.6616750208855472,
+   "jaccard_within_sd_mean": 0.12876373941234545,
+   "pass_rate_over_orders": 0.4473684210526316,
+   "order_dependent_verdict_scenarios": 13,
+   "dialogue_path_identical_to_random_fraction": 0.35789473684210527,
+   "dialogue_path_jaccard_percentile_mean": 0.6754385964912281
+  },
+  "openrouter_google_gemini-2.5-flash-lite": {
+   "scenarios": 30,
+   "no_path_any_order": 6,
+   "api_judgments_sent": 1214,
+   "logical_judgments": 2664,
+   "distinct_paths_mean": 4,
+   "distinct_paths_max": 9,
+   "one_path_scenarios": 4,
+   "scenarios_with_path": 24,
+   "path_len_mean": 4.559027777777778,
+   "path_len_sd": 1.1858490391583743,
+   "path_len_min": 2,
+   "path_len_max": 7,
+   "path_len_within_range_mean": 1.0416666666666667,
+   "stability_pairwise_jaccard": 0.7262521043771044,
+   "jaccard_to_benchmark_mean": 0.6667617394179894,
+   "jaccard_within_sd_mean": 0.11157843376741164,
+   "pass_rate_over_orders": 0.4930555555555556,
+   "order_dependent_verdict_scenarios": 14,
+   "dialogue_path_identical_to_random_fraction": 0.4041666666666667,
+   "dialogue_path_jaccard_percentile_mean": 0.8680555555555556
+  },
+  "openrouter_qwen_qwen3.6-27b": {
+   "scenarios": 30,
+   "no_path_any_order": 8,
+   "api_judgments_sent": 1063,
+   "logical_judgments": 2472,
+   "distinct_paths_mean": 2.772727272727273,
+   "distinct_paths_max": 7,
+   "one_path_scenarios": 6,
+   "scenarios_with_path": 22,
+   "path_len_mean": 4.393939393939394,
+   "path_len_sd": 1.0713739108887084,
+   "path_len_min": 2,
+   "path_len_max": 7,
+   "path_len_within_range_mean": 0.6363636363636364,
+   "stability_pairwise_jaccard": 0.8257149416240326,
+   "jaccard_to_benchmark_mean": 0.7813131313131313,
+   "jaccard_within_sd_mean": 0.09398884979945346,
+   "pass_rate_over_orders": 0.7992424242424242,
+   "order_dependent_verdict_scenarios": 8,
+   "dialogue_path_identical_to_random_fraction": 0.5363636363636364,
+   "dialogue_path_jaccard_percentile_mean": 0.8560606060606061
+  }
+ },
+ "within_observer_between_order_jaccard": {
+  "openai_gpt-4o-mini-2024-07-18": 0.6850041771094403,
+  "openrouter_google_gemini-2.5-flash-lite": 0.7262521043771044,
+  "openrouter_qwen_qwen3.6-27b": 0.8257149416240326
+ },
+ "between_observer": {
+  "openai_gpt-4o-mini-2024-07-18 vs openrouter_google_gemini-2.5-flash-lite": {
+   "n": 16,
+   "between_observer_jaccard_dialogue_order": 0.670610119047619
+  },
+  "openai_gpt-4o-mini-2024-07-18 vs openrouter_qwen_qwen3.6-27b": {
+   "n": 18,
+   "between_observer_jaccard_dialogue_order": 0.7546296296296297
+  },
+  "openrouter_google_gemini-2.5-flash-lite vs openrouter_qwen_qwen3.6-27b": {
+   "n": 19,
+   "between_observer_jaccard_dialogue_order": 0.7181704260651629
+  }
+ }
+}

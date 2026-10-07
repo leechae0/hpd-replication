@@ -81,34 +81,43 @@ def kappa(x, y):
 
 
 def cmd_score(a):
+    """Stratified semantic rate. Rows with an empty label are treated as not annotated. For each observer the
+    annotated rows are split by the lexical criterion; the semantic rate is
+        P(lex=1) * P(M | lex=1, annotated) + P(lex=0) * P(M | lex=0, annotated),
+    which equals the plain rate when every row is annotated. The 95% CI is a stratified bootstrap (10,000)."""
+    import random
+    random.seed(a.seed)
     sheet = os.path.join(ROOT, "annotation_sheet.csv")
     rows = list(csv.DictReader(open(sheet, encoding="utf-8-sig")))
-    nli = None
-    if a.nli:
-        from transformers import pipeline
-        nli = pipeline("text-classification", model="MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7")
+    out = {}
     obs = sorted({r["observer"] for r in rows})
-    print(f"{'observer':<45}{'n':>5}{'lexical':>9}{'semantic':>10}{'agree':>8}{'kappa':>8}" + ("{:>8}".format("nli") if nli else ""))
+    print(f"{'observer':<45}{'n':>4}{'lex':>7}{'ann':>5}{'M|lex1':>9}{'M|lex0':>9}{'semantic':>10}{'95% CI':>16}{'agree':>7}")
     for o in obs:
-        rs = [r for r in rows if r["observer"] == o]
-        lex = [int(r["lexical"]) for r in rs]
-        fin = [(r["final"] or r["ann1"]).strip().upper() for r in rs]
-        sem = [1 if f == "M" else 0 for f in fin]
-        agree = sum(1 for l, s in zip(lex, sem) if l == s) / len(rs)
-        a1 = [r["ann1"].strip().upper() for r in rs]; a2 = [r["ann2"].strip().upper() for r in rs]
-        k = kappa(a1, a2) if all(a1) and all(a2) else float("nan")
-        line = f"{o:<45}{len(rs):>5}{sum(lex)/len(rs):>9.3f}{sum(sem)/len(rs):>10.3f}{agree:>8.3f}{k:>8.3f}"
-        if nli:
-            hits = 0
-            for r in rs:
-                ok = False
-                for c in r["candidates"].split(" || "):
-                    f1 = nli({"text": c, "text_pair": r["benchmark_secret"]})[0]; f2 = nli({"text": r["benchmark_secret"], "text_pair": c})[0]
-                    if f1["label"].lower() == "entailment" and f2["label"].lower() == "entailment":
-                        ok = True; break
-                hits += int(ok)
-            line += f"{hits/len(rs):>8.3f}"
-        print(line)
+        rs = [r for r in rows if r["observer"] == o]; n = len(rs)
+        lab = {int(r["lexical"]): [] for r in rs}
+        for r in rs:
+            f = (r["final"] or r["ann1"]).strip().upper()
+            if f:
+                lab[int(r["lexical"])].append(f)
+        p_lex = sum(int(r["lexical"]) for r in rs) / n
+        def rate(l1, l0):
+            m1 = l1.count("M") / len(l1) if l1 else 0.0; m0 = l0.count("M") / len(l0) if l0 else 0.0
+            return p_lex * m1 + (1 - p_lex) * m0
+        est = rate(lab[1], lab[0])
+        bs = sorted(rate([random.choice(lab[1]) for _ in lab[1]], [random.choice(lab[0]) for _ in lab[0]]) for _ in range(10000))
+        lo, hi = bs[249], bs[9750]
+        ann = [(int(r["lexical"]), (r["final"] or r["ann1"]).strip().upper()) for r in rs if (r["final"] or r["ann1"]).strip()]
+        agree = sum(1 for l, f in ann if l == (f == "M")) / len(ann) if ann else float("nan")
+        notes = [r["note"] for r in rs if r.get("note")]
+        res = {"n": n, "lexical": p_lex, "annotated": len(ann), "n_lex1_annotated": len(lab[1]), "n_lex0_annotated": len(lab[0]),
+               "M_given_lex1": lab[1].count("M") / len(lab[1]) if lab[1] else None, "M_given_lex0": lab[0].count("M") / len(lab[0]) if lab[0] else None,
+               "counts_lex1": {k: lab[1].count(k) for k in "MAX"}, "counts_lex0": {k: lab[0].count(k) for k in "MAX"},
+               "semantic": est, "ci95": [lo, hi], "agreement_on_annotated": agree,
+               "notes": {k: notes.count(k) for k in set(notes)}}
+        out[o] = res
+        print(f"{o:<45}{n:>4}{p_lex:>7.3f}{len(ann):>5}{(res['M_given_lex1'] or 0):>9.2f}{(res['M_given_lex0'] or 0):>9.2f}{est:>10.3f}   [{lo:.3f}, {hi:.3f}]{agree:>7.2f}")
+    path = os.path.join(ROOT, "semantic_scores.json")
+    json.dump(out, open(path, "w"), indent=1); print("written:", path)
 
 
 def main():
@@ -116,7 +125,7 @@ def main():
     ap.add_argument("cmd", choices=["dump", "sheet", "score"])
     ap.add_argument("--backend", default=None); ap.add_argument("--model", default=None)
     ap.add_argument("--limit", type=int, default=None); ap.add_argument("--raw", action="store_true")
-    ap.add_argument("--nli", action="store_true")
+    ap.add_argument("--nli", action="store_true"); ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
     if a.cmd == "dump":
         assert a.backend, "--backend is required for dump"
