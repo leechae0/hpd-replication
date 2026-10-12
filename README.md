@@ -5,7 +5,7 @@ Code, prompts, dialogue data, per-scenario judgment logs and human annotations f
 > Chaeyoung Lee and Sooyong Park. *Path-Level Auditing of Compositional Privacy Leakage in
 > Multi-Agent Large Language Model Dialogues.* Submitted to PeerJ Computer Science.
 
-Archived copy: Zenodo, DOI [to be added]. License: MIT (code and documentation).
+Archived copy (this release): Zenodo, https://doi.org/10.5281/zenodo.23315183. License: MIT (code and documentation).
 
 Every number in the manuscript and its Supplemental Information can be recomputed from the logs in
 this repository **without calling any model**. Re-running the observer experiments themselves
