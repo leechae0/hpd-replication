@@ -26,6 +26,7 @@ All commands are run from `code/`. No command below calls a model.
 | Section S2, transformation audit and MR3 similarity | `results/mr_fidelity/fidelity_sheet.csv`; `python3 exp3_mr3_similarity.py` | `results/logs/exp3_mr3_similarity_run.txt` |
 | Section S2, MR4 correction | `python3 exp3_mr4_rerun.py --report-only ...` | `results/logs/*_r5_mr4fix.jsonl` |
 | Section S6, multiple paths and blocking (Tables S4, S5) | `python3 exp_c3_multipath.py`; `exp3_block.py` (part a, interactive run, no saved log) | `results/logs/exp_c3_multipath_run.txt`, `results/c3_results.json` |
+| Section 4.4 and Section S7, excluding the 12 scenarios with unsupported secrets (Table S6) | `python3 peerj_sensitivity.py --json ../results/peerj_sensitivity.json` | `results/peerj_sensitivity.json` |
 
 Second annotator (done, 2026-10-12): induction labels are in column `ann2` of `results/induction/annotation_sheet.csv` (raw agreement with `final` 0.82 on 108 rows, Cohen's kappa 0.33, Gwet's AC1 0.79; disagreements in `annotation_sheet_ann2_disagreements.csv`). The second annotator also judged all 90 transformation excerpts faithful.
 
@@ -110,6 +111,8 @@ paper reports.
 | GPT-4o-mini | OpenAI API | `gpt-4o-mini-2024-07-18` | temperature 0 |
 | Qwen3.6-27B | OpenRouter | `qwen/qwen3.6-27b` | temperature 0, `max_tokens` 800, reasoning disabled |
 | Gemini 2.5 Flash-Lite | OpenRouter | `google/gemini-2.5-flash-lite` | temperature 0, `max_tokens` 800, reasoning disabled |
+
+OpenRouter routing: requests for Qwen3.6-27B and Gemini 2.5 Flash-Lite were not pinned to one upstream provider (`provider: {allow_fallbacks: true}` in code/llm.py), so the serving provider may have varied between calls.
 
 Every binary judgment is asked r = 5 times and decided by majority vote (`llm.Observer`). All
 prompts are in Korean and are listed verbatim in `docs/PROMPTS.md`. Dialogues are rendered from the

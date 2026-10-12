@@ -1,0 +1,151 @@
+{
+  "excluded": [
+    "experiment_15",
+    "experiment_17",
+    "experiment_18",
+    "experiment_39",
+    "experiment_44",
+    "experiment_48",
+    "experiment_59",
+    "experiment_61",
+    "experiment_76",
+    "experiment_79",
+    "experiment_84",
+    "experiment_105"
+  ],
+  "n_all": 116,
+  "n_kept": 104,
+  "observers": {
+    "GPT-4o-mini": {
+      "all": {
+        "scenarios": 116,
+        "paths_returned": 72,
+        "path_rate": 0.621,
+        "mean_path_length": 4.22,
+        "agreement_jaccard": 0.594,
+        "both_structural": 0.903,
+        "MR1": 0.88,
+        "MR3": 0.76,
+        "MR4": 0.76,
+        "all_five": 0.597,
+        "all_five_ci": [
+          0.48,
+          0.7
+        ],
+        "validated_scenarios": 43,
+        "removed_by_invariance": 0.338
+      },
+      "kept": {
+        "scenarios": 104,
+        "paths_returned": 67,
+        "path_rate": 0.644,
+        "mean_path_length": 4.13,
+        "agreement_jaccard": 0.59,
+        "both_structural": 0.91,
+        "MR1": 0.9,
+        "MR3": 0.78,
+        "MR4": 0.79,
+        "all_five": 0.627,
+        "all_five_ci": [
+          0.51,
+          0.73
+        ],
+        "validated_scenarios": 42,
+        "removed_by_invariance": 0.311
+      }
+    },
+    "Qwen3.6-27B": {
+      "all": {
+        "scenarios": 116,
+        "paths_returned": 88,
+        "path_rate": 0.759,
+        "mean_path_length": 4.48,
+        "agreement_jaccard": 0.72,
+        "both_structural": 0.989,
+        "MR1": 0.92,
+        "MR3": 0.94,
+        "MR4": 0.88,
+        "all_five": 0.807,
+        "all_five_ci": [
+          0.71,
+          0.88
+        ],
+        "validated_scenarios": 71,
+        "removed_by_invariance": 0.184
+      },
+      "kept": {
+        "scenarios": 104,
+        "paths_returned": 86,
+        "path_rate": 0.827,
+        "mean_path_length": 4.43,
+        "agreement_jaccard": 0.721,
+        "both_structural": 0.988,
+        "MR1": 0.93,
+        "MR3": 0.94,
+        "MR4": 0.87,
+        "all_five": 0.814,
+        "all_five_ci": [
+          0.72,
+          0.88
+        ],
+        "validated_scenarios": 70,
+        "removed_by_invariance": 0.176
+      }
+    },
+    "Gemini 2.5 Flash-Lite": {
+      "all": {
+        "scenarios": 116,
+        "paths_returned": 86,
+        "path_rate": 0.741,
+        "mean_path_length": 4.53,
+        "agreement_jaccard": 0.623,
+        "both_structural": 1.0,
+        "MR1": 0.78,
+        "MR3": 0.77,
+        "MR4": 0.6,
+        "all_five": 0.523,
+        "all_five_ci": [
+          0.42,
+          0.63
+        ],
+        "validated_scenarios": 45,
+        "removed_by_invariance": 0.477
+      },
+      "kept": {
+        "scenarios": 104,
+        "paths_returned": 84,
+        "path_rate": 0.808,
+        "mean_path_length": 4.5,
+        "agreement_jaccard": 0.619,
+        "both_structural": 1.0,
+        "MR1": 0.77,
+        "MR3": 0.76,
+        "MR4": 0.61,
+        "all_five": 0.524,
+        "all_five_ci": [
+          0.42,
+          0.63
+        ],
+        "validated_scenarios": 44,
+        "removed_by_invariance": 0.476
+      }
+    }
+  },
+  "mcnemar_kept_unadjusted": {
+    "GPT-4o-mini vs Qwen3.6-27B": {
+      "b": 6,
+      "c": 34,
+      "p_exact": 0.0
+    },
+    "GPT-4o-mini vs Gemini 2.5 Flash-Lite": {
+      "b": 23,
+      "c": 25,
+      "p_exact": 0.8854
+    },
+    "Qwen3.6-27B vs Gemini 2.5 Flash-Lite": {
+      "b": 36,
+      "c": 10,
+      "p_exact": 0.0002
+    }
+  }
+}
