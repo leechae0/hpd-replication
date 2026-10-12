@@ -27,7 +27,9 @@ All commands are run from `code/`. No command below calls a model.
 | Section S2, MR4 correction | `python3 exp3_mr4_rerun.py --report-only ...` | `results/logs/*_r5_mr4fix.jsonl` |
 | Section S6, multiple paths and blocking (Tables S4, S5) | `python3 exp_c3_multipath.py`; `exp3_block.py` (part a, interactive run, no saved log) | `results/logs/exp_c3_multipath_run.txt`, `results/c3_results.json` |
 
-Second annotator (planned): `python3 make_annotation_xlsx.py --mode sample --suffix _2차판정자` builds the
+Second annotator (done, 2026-10-12): induction labels are in column `ann2` of `results/induction/annotation_sheet.csv` (raw agreement with `final` 0.82 on 108 rows, Cohen's kappa 0.33, Gwet's AC1 0.79; disagreements in `annotation_sheet_ann2_disagreements.csv`). The second annotator also judged all 90 transformation excerpts faithful.
+
+How the second pass was run: `python3 make_annotation_xlsx.py --mode sample --suffix _2차판정자` builds the
 two annotator workbooks in the same layout as the first pass, restricted to the labelled sample
 (108 induction rows, 90 transformation rows) and without the first labels. After the second annotator
 returns them, `python3 collect_annotations.py task1 <file> --as ann2 --subset` (and `task2`) writes the
