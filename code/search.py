@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-search.py — 탐색 알고리즘 (실코드). 관찰자 판정 함수 V(S)->{0,1} 위에서 동작.
- - backward_search : 전체에서 각 단서를 한 번씩 제거해 최소 지지집합 1개를 복원. |U|+1 질의.
- - enumerate_all   : 모든 최소 지지집합을 완전 열거(단조 쌍대생성). 소규모용.
+search.py — search algorithms (actual code). They operate on the observer verdict function V(S)->{0,1}.
+ - backward_search : starting from the full set, remove each cue once to recover one minimal support set. |U|+1 queries.
+ - enumerate_all   : exhaustively enumerate all minimal support sets (monotone dualization). For small instances.
 """
 import itertools
 
@@ -13,7 +13,7 @@ class QueryCounter:
 
 
 def backward_search(V, universe, qc):
-    """전체 집합에서 시작해 각 단서 제거 시 결론이 유지되면 버린다(=MR2). 최소 지지집합 반환."""
+    """Start from the full set and drop each cue whose removal keeps the conclusion (=MR2). Returns a minimal support set."""
     qc.tick()
     if V(list(universe)) == 0:
         return None
@@ -25,7 +25,7 @@ def backward_search(V, universe, qc):
     return frozenset(S)
 
 
-# ------------- 완전 열거 (모든 최소 지지집합) : 단조 쌍대생성 -------------
+# ------------- Exhaustive enumeration (all minimal support sets): monotone dualization -------------
 def _minimize(V, X, qc):
     qc.tick()
     if V(list(X)) == 0: return None
@@ -54,7 +54,7 @@ def _conflict(D, M, N):
     return None
 
 def enumerate_all(V, universe, qc, budget=10**6):
-    """모든 최소 지지집합을 완전 열거. (단서 수가 작을 때만 사용)"""
+    """Exhaustively enumerate all minimal support sets. (Use only when the number of cues is small)"""
     D = set(universe); M, N = [], []
     while qc.n < budget:
         X = _conflict(D, M, N)

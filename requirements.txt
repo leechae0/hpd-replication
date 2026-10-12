@@ -1,4 +1,13 @@
+# Python 3.10 or later.
+# Core: observer experiments, MR transformations, controlled checks
 openai>=1.0
 spacy>=3.7,<3.8
-# python -m spacy download en_core_web_sm   (Experiment 2 and all MR transformations)
-# huggingface_hub, pyarrow                  (only for code/fetch_datasets.py)
+#   python -m spacy download en_core_web_sm   (required by code/mr_nlp.py, which most scripts import)
+#   python -m spacy download en_core_web_md   (only code/exp3_mr3_similarity.py)
+# Analysis and annotation workbooks
+numpy
+openpyxl
+# Optional
+#   scipy                     code/exp3_stats.py (Wilcoxon test, not reported; the script runs without it)
+#   anthropic                 Anthropic backend in code/llm.py (not used in the paper)
+#   huggingface_hub, pyarrow  code/fetch_datasets.py (HotpotQA and MuSiQue for the controlled checks)

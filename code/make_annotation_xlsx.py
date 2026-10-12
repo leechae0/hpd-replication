@@ -5,7 +5,7 @@ make_annotation_xlsx.py — builds the annotator workbooks (v2) from the two aud
   python3 make_annotation_xlsx.py [--out DIR]
       reads  ../results/induction/annotation_sheet.csv   (Task 1, 348 rows)
              ../results/mr_fidelity/fidelity_sheet.csv   (Task 2, 90 rows)
-      writes DIR/작업1_유도판정.xlsx, DIR/작업2_변환판정.xlsx
+      writes DIR/<task1_workbook>.xlsx, DIR/<task2_workbook>.xlsx  (Korean file names: "Task 1 induction judgment", "Task 2 transformation judgment")
 
 Changes relative to v1 (after annotator feedback, 2026-09-30):
   * Task 1: all model candidates are shown in the order the model produced them (v1 ranked them by
@@ -14,7 +14,7 @@ Changes relative to v1 (after annotator feedback, 2026-09-30):
     fragments. The observer is hidden (blind); the key is kept in a hidden sheet.
   * Task 2: the full text before AND after the transformation is shown (v1 showed only a diff).
     Changed words are coloured by a plain difflib word diff, independent of the transformation code.
-Each workbook has one input column ('판정') with a drop-down, and a hidden '_key' sheet used by
+Each workbook has one input column (header 'judgment', in Korean) with a drop-down, and a hidden '_key' sheet used by
 collect_annotations.py to map rows back to (sid, observer) / (sid, mr).
 """
 import argparse, csv, difflib, json, os, random, re, sys, unicodedata
@@ -355,7 +355,7 @@ def build_task2(out):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(HERE, "..", "results", "annotation_v2"))
+    ap.add_argument("--out", default=os.path.join(HERE, "..", "annotation", "workbooks"))
     ap.add_argument("--mode", choices=["full", "sample", "filled"], default="full",
                     help="full: 348/90 blank rows (annotator 1); sample: only the rows annotator 1 labelled, blank "
                          "(for a second annotator; first labels are not shown); filled: those rows with annotator 1's labels")

@@ -3,14 +3,15 @@
 collect_annotations.py — reads the filled annotator workbooks (from make_annotation_xlsx.py) and
 writes the labels back into the audit CSVs, so that the existing `score` commands work unchanged.
 
-  python3 collect_annotations.py task1 작업1_유도판정_A.xlsx [작업1_유도판정_B.xlsx]
-  python3 collect_annotations.py task2 작업2_변환판정_A.xlsx [작업2_변환판정_B.xlsx]
+  python3 collect_annotations.py task1 <task1_workbook_A>.xlsx [<task1_workbook_B>.xlsx]
+  python3 collect_annotations.py task2 <task2_workbook_A>.xlsx [<task2_workbook_B>.xlsx]
+  (<taskN_workbook...> = the Task 1 / Task 2 workbooks written by make_annotation_xlsx.py; their file names are in Korean)
 
   first file  -> column ann1, second file -> column ann2 ('final' is left as it is)
 
   Second annotator on the labelled sample only (workbooks made with make_annotation_xlsx.py --mode sample):
-  python3 collect_annotations.py task1 작업1_유도판정_2차판정자_<이름>.xlsx --as ann2 --subset
-  python3 collect_annotations.py task2 작업2_변환판정_2차판정자_<이름>.xlsx --as ann2 --subset
+  python3 collect_annotations.py task1 <task1_workbook>_<second-annotator suffix>_<name>.xlsx --as ann2 --subset
+  python3 collect_annotations.py task2 <task2_workbook>_<second-annotator suffix>_<name>.xlsx --as ann2 --subset
       writes the labels into column ann2 for the rows in the workbook only, then prints raw agreement and
       Cohen's kappa against the existing 'final' labels and writes <sheet>_disagreements.csv
   task1 -> ../results/induction/annotation_sheet.csv   then: python3 exp3_induction.py score

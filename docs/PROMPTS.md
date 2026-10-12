@@ -1,4 +1,9 @@
-# Prompts used in Experiment 3 and Appendix C
+# Observer prompts
+
+Naming: in the code and logs, "Experiment 3" is the observer experiment of Sections 4.1 to 4.4 of the
+PeerJ manuscript; "Experiments 1 and 2" are the controlled checks of Section 4.5 and Section S5.
+Prompts 1 to 3 below produced every reported number. Prompts 4 and 5 belong to analyses of an earlier
+draft that are not part of the PeerJ manuscript; they are kept so that the code is fully documented.
 
 All prompts were presented to the observers in Korean, exactly as reproduced below (source:
 `code/llm.py` and `code/datasets.py`). An English gloss follows each prompt for readers; the gloss
@@ -66,7 +71,7 @@ Induction counts as successful (gate A) when a candidate shares at least max(2, 
 words with the benchmark secret z (`exp3_endtoend.mentions`). Gate B: no candidate matched but
 V_z(U) = 1 on the whole dialogue. Gate C: neither.
 
-## 4. Ask-the-model baseline (Appendix C.4, `b_ask`)
+## 4. Ask-the-model baseline (earlier draft only, `b_ask` field; not reported in the PeerJ manuscript)
 
 ```
 대화(각 줄에 색인 부여):
@@ -82,7 +87,7 @@ only a JSON list of integer indices, e.g. [0,2,3]. (The excerpt is rendered with
 prefixes.) The leave-one-out baseline (`b_loo`) uses prompt 2 with each single line removed and
 keeps the lines whose removal flips the judgment to NO.
 
-## 5. LLM rewriting of utterances (Table C.1, "rewritten input" rows only)
+## 5. LLM rewriting of utterances (earlier draft only; not used in the PeerJ manuscript)
 
 System:
 ```
@@ -102,6 +107,6 @@ that record's information. Speaker: {agent}. Record held: '{key}' — {text}. Wr
 which {agent} naturally mentions only the concrete information of this record; do not mention
 other records or speculation; output the sentence only, without a speaker prefix.
 
-This rewriting is used only for the "rewritten input" condition of Table C.1 (`exp3_detect.py`
-without `--raw`). Experiment 3, Appendix A, C.2 and C.4 use the deterministic value-preserving
-rendering (`--raw`), described in `DIALOGUE_RULES.md`.
+This rewriting was used only by `archive/code/exp3_detect.py` (without `--raw`). Every experiment in the
+PeerJ manuscript uses the deterministic value-preserving rendering (`--raw`), described in
+`DIALOGUE_RULES.md`.

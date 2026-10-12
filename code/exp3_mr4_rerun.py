@@ -22,7 +22,7 @@ transformation had renamed at least one non-name token in this excerpt). Resumab
   python3 exp3_mr4_rerun.py --backend openrouter --model google/gemini-2.5-flash-lite --r 5 --raw
   python3 exp3_mr4_rerun.py --backend openai --model gpt-4o-mini-2024-07-18 --report-only
 Cost: one MR4 judgment (r calls) per returned path, about 250 x 5 calls over the three observers.
-Afterwards: python3 exp3_stats.py --suffix _mr4fix   and   python3 exp3_compare.py --glob "e2e_progress_*_mr4fix.jsonl"
+Afterwards: python3 exp3_stats.py --suffix _mr4fix   and   python3 peerj_tables.py
 """
 import argparse, json, os, re, time
 from llm import make_backend, Observer

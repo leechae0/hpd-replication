@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
- 실험 3 — 실제 LLM 관찰자 종단 평가 (독립 실행, 실 LLM 필요)
+ Experiment 3 — end-to-end evaluation with real LLM observers (standalone; requires a real LLM)
 ================================================================================
- 파이프라인: 유도(A/B/C 게이트) → 탐색(MR2) → 인증(실 spaCy MR)
- 추가 측정: 단조성 위반율, 베이스라인 2종(직접질문/leave-one-out), 실가짜 coverage.
- 데이터: Patil(실 LLM 으로 자연어 대화 변환) 기본. MuSiQue/MAGPIE 는 경로 확장/시연.
- 실행:
+ Pipeline: induction (A/B/C gate) → search (MR2) → validation (real spaCy-based MRs)
+ Extra measurements: monotonicity-violation rate, two baselines (direct question / leave-one-out),
+ coverage of real spurious cases.
+ Data: Patil by default (converted to natural-language dialogue by a real LLM). MuSiQue/MAGPIE are
+ path extensions / demonstrations.
+ Usage:
    GROQ_API_KEY=..   python3 exp3_endtoend.py --backend groq   --limit 20
    OPENAI_API_KEY=.. python3 exp3_endtoend.py --backend openai --model gpt-4o-2024-08-06
 ================================================================================
@@ -35,7 +37,7 @@ def mentions(items, z):
     return False
 
 
-# --------------- 탐색 · 단조성 · 인증 (실 LLM 관찰자) ---------------
+# --------------- Search · monotonicity · validation (real LLM observer) ---------------
 def find_path(obs, turns, z, qc):
     V = lambda S: obs.judge_excerpt(render(turns, S), z)
     return backward_search(V, list(range(len(turns))), qc)
@@ -60,7 +62,8 @@ def certify(obs, turns, S, z, detail=False):
     r1 = obs.judge_excerpt(MR.mr1_reframe(ex), z) == 1
     noised, _ = MR.mr3_inject_noise([turns[i] for i in sorted(S)], 2)
     r3 = obs.judge_excerpt(render(noised), z) == 1
-    # MR4: 개체명을 발췌와 비밀 z에 '일관되게' 치환한 뒤 판정(이름 불일치로 인한 오탈락 방지)
+    # MR4: rename entities consistently in both the excerpt and the secret z before judging
+    # (avoids false rejections caused by a name mismatch)
     ex4, mp4, _ = MR.mr4_rename(ex)
     z4 = z
     for old, new in mp4.items():
@@ -72,7 +75,8 @@ def certify(obs, turns, S, z, detail=False):
     return ok
 
 def harvest_coverage(obs, turns, z, wrong_z):
-    """실환경 스퓨리어스 수확: (a) 내용 은닉 대화에서 결론=사전지식, (b) 엉뚱한 z'에 YES=오판."""
+    """Harvest spurious cases in the real setting: (a) a YES on a content-masked dialogue means the
+    conclusion comes from prior knowledge; (b) a YES for an unrelated secret z' is a misjudgment."""
     harvested = caught = 0
     masked = [{"speaker": t["speaker"], "text": "(내용 은닉)"} for t in turns]
     if obs.judge_excerpt(render(masked), z) == 1:
@@ -108,7 +112,7 @@ def _save(path, rec):
 
 
 def report(done, label=""):
-    """진행 파일(완료분 전체)에서 집계. 여러 날에 나눠 돌려도 합산된다."""
+    """Aggregate over the progress file (all completed scenarios); runs split over several days are summed."""
     abc = Counter(); jacs = []; qtot = []; mono = []
     cert_pass = cert_tot = cert_pass4 = 0; mrpass = Counter(); b_ask = []; b_loo = []
     harv = caught = 0
@@ -176,7 +180,7 @@ def main():
                 changed += 1
             rec["abc"] = new_abc
             if new_abc != "C" and "q" not in rec:
-                # 이전엔 C라서 탐색을 안 했던 시나리오 → 탐색·검증 수행
+                # Scenario was previously C, so no search was run → run search and validation now
                 qc = QueryCounter(); S = find_path(obs, turns, z, qc); rec["q"] = qc.n
                 if S is not None:
                     rec["S"] = sorted(S); rec["jac"] = jaccard(S, s.gt)

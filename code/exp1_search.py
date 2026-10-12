@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
- 실험 1 — 탐색 알고리즘의 정확성·강건성·확장성  (독립 실행)
+ Experiment 1 — correctness, robustness and scalability of the search algorithm  (standalone)
 ================================================================================
- 관찰자: '통제 오라클'. 이는 mock LLM 이 아니라, 정답과 대조하기 위한 의도된 장치다.
-   정답 최소 집합 gt 에 대해 V(S)=1 ⇔ gt⊆S. 실제 LLM 의 확률적 오류를 모사하기 위해
-   판정을 확률 ε로 반전(잡음 주입)하고, 완화 기법으로 r회 다수결한다.
- 데이터: Patil(실 파일) + HotpotQA/MuSiQue(실 파일 지정 시). 텍스트가 아니라 조합 구조만 사용.
- 실행:
+ Observer: a 'controlled oracle'. This is not a mock LLM but a deliberate device for checking against the ground truth.
+   For the ground-truth minimal set gt, V(S)=1 ⇔ gt⊆S. To mimic the stochastic errors of a real LLM,
+   each verdict is flipped with probability ε (noise injection), and an r-vote majority is used as mitigation.
+ Data: Patil (actual files) + HotpotQA/MuSiQue (when actual file paths are given). Only the combinatorial structure is used, not the text.
+ Usage:
    python3 exp1_search.py
    python3 exp1_search.py --hotpotqa data/hotpot_dev_distractor_v1.json \
                           --musique  data/musique_ans_v1.0_dev.jsonl
@@ -19,7 +19,7 @@ from search import backward_search, jaccard, QueryCounter
 
 
 class OracleObserver:
-    """통제 오라클. gt 기반 판정 + 잡음(ε) + 다수결(r). (LLM 아님)"""
+    """Controlled oracle. gt-based verdict + noise (ε) + majority vote (r). (Not an LLM)"""
     def __init__(self, gt, eps=0.0, r=1, rng=None):
         self.gt = set(gt); self.eps = eps; self.r = r
         self.rng = rng or random.Random(0)
@@ -35,7 +35,7 @@ class OracleObserver:
 
 
 def run_dataset(name, scen, seeds=(0, 1, 2, 3, 4)):
-    # 잡음 수준: (라벨, ε, r)
+    # Noise levels: (label, ε, r)
     LEVELS = [("무잡음", 0.00, 1), ("약", 0.05, 5), ("중", 0.10, 7), ("강", 0.20, 9)]
     us = [len(s.units) for s in scen]
     print("=" * 70)
@@ -60,7 +60,7 @@ def run_dataset(name, scen, seeds=(0, 1, 2, 3, 4)):
         sd_e = st.stdev(exact) if len(exact) > 1 else 0.0
         print(f"  {label:<4}(ε={eps:.2f},r={r}) | {st.mean(exact):6.1f} ± {sd_e:4.1f} / {len(scen):<4}"
               f"| {st.mean(jac):.3f}       | {st.mean(q):.0f}")
-    # 베이스라인: 정답 크기를 알려준 무작위 선택 (성능 하한)
+    # Baseline: random selection given the ground-truth size (lower bound on performance)
     def rnd(seed):
         rng = random.Random(seed)
         return st.mean([jaccard(set(rng.sample(range(len(s.units)), len(s.gt))), s.gt) for s in scen])

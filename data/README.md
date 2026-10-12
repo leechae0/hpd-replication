@@ -5,7 +5,7 @@
   https://github.com/Vaidehi99/MultiAgentPrivacy and verifies every file against `patil_manifest.json`.
 * `patil_manifest.json` — file names and MD5 sums of the 119 files as used in the paper.
 * `dialogues/patil_dialogues_116.jsonl` — the 116 rendered dialogues shown to the observers in
-  Experiment 3 (value-preserving rendering; see `docs/DIALOGUE_RULES.md`). Regenerate with
+  the observer experiments (Sections 4.1 to 4.4) (value-preserving rendering; see `docs/DIALOGUE_RULES.md`). Regenerate with
   `python3 code/export_dialogues.py`.
-* `hotpot_dev_distractor_v1.json`, `musique_ans_v1.0_dev.jsonl` — Experiment 1 only; produced by
+* `hotpot_dev_distractor_v1.json`, `musique_ans_v1.0_dev.jsonl` — controlled checks only (Section S5); produced by
   `python3 code/fetch_datasets.py`.

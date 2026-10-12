@@ -16,8 +16,8 @@ sensitive conclusion (`run_2_sensitive.final_inference_result`).
 * **Secret z** = `final_inference_result`, truncated before any "suggesting …" clause, so that z
   states the factual combination the cues determine rather than the data-external speculation
   that follows it.
-* **Utterance text (value-preserving rendering, used in Experiment 3, Appendices A, C.2, C.4 and
-  the "value-exposed" row of Table C.1):**
+* **Utterance text (value-preserving rendering, `--raw`; used for every observer experiment in the
+  PeerJ manuscript):**
 
   ```
   <agent> was reviewing the '<table>' records earlier today. Entries: (<k>=<v>, …); (<k>=<v>, …); ….
@@ -27,17 +27,18 @@ sensitive conclusion (`run_2_sensitive.final_inference_result`).
   order, one per cue, prefixed with the speaker name when shown to the observer
   (`"<speaker>: <text>"`). This rendering is deterministic; `code/export_dialogues.py` writes all
   116 dialogues to `data/dialogues/patil_dialogues_116.jsonl`.
-* **LLM-rewritten rendering (Table C.1 "rewritten input" only):** each utterance is rewritten by
+* **LLM-rewritten rendering (earlier draft only; not used in the PeerJ manuscript):** each utterance is rewritten by
   the observer model itself with the prompt in `PROMPTS.md` §5 (one record per call, no other
   record visible).
 
-HotpotQA and MuSiQue (Experiment 1 only) use paragraphs as cues: HotpotQA's 10 context paragraphs
+HotpotQA and MuSiQue (controlled checks only, Section S5) use paragraphs as cues: HotpotQA's 10 context paragraphs
 with the 2 gold paragraphs as G; MuSiQue's ~20 paragraphs with the `is_supporting` paragraphs as G.
 Only the combinatorial structure is used there (the oracle never reads text).
 
-## 2. Negative dialogues for per-dialogue screening (Table C.1)
+## 2. Negative dialogues for per-dialogue screening (earlier draft only)
 
-Built by `negatives.py` from the first 30 Patil scenarios (`--limit 30`):
+This analysis is not part of the PeerJ manuscript; its scripts are in `archive/code/`. Built by
+`negatives.py` from the first 30 Patil scenarios (`--limit 30`):
 
 * **Hard negatives (30):** the ground-truth cues are removed and only the remaining distractor
   cues are kept, so no sensitive combination is present but the dialogue looks like a leakage
@@ -72,21 +73,25 @@ Applied to the returned path S*:
    cranes, mural, solar panels) such that they share no content lemma with the dialogue, and are
    appended as utterances of a new speaker "Owen". Verified automatically: zero content-lemma
    overlap.
-5. **MR4 entity substitution** (`mr_nlp.mr4_rename`): PERSON entities (spaCy NER) plus speaker
-   prefixes are mapped consistently to new names from {Zara, Kenji, Priya, Owen, Mara, Tobias,
-   Lena, Rahul}; the same mapping is applied to the judged statement z. Verified automatically:
-   no original name remains; non-name tokens unchanged.
+5. **MR4 entity substitution** (`mr_nlp.mr4_rename`): dialogue speakers, values of person-name
+   fields, and words of those names are mapped consistently to new names (`NEW_NAMES` in
+   `mr_nlp.py`); the same mapping is applied to the judged statement z. A spaCy PERSON candidate
+   is renamed only if it is name-like and is a speaker or a person-name field value. The first
+   runs (August to September 2026) used an unfiltered version that also renamed some identifiers,
+   street names and capitalized values; MR4 was re-judged with the filter on 2026-09-22
+   (`code/exp3_mr4_rerun.py`, `results/logs/*_mr4fix.jsonl`; Section S2 of the Supplemental
+   Information). Verified automatically: no original name remains; non-name tokens unchanged.
 
-A path passes when all five hold (5/5 criterion). `cert4` records the relaxed 4/5 criterion used in
-Appendix A.
+A path passes when all five hold (5/5 criterion). `cert4` records the relaxed 4/5 criterion reported
+for reference in Section S4.
 
 ## 5. Other measurements in the Experiment 3 logs
 
 * **Monotonicity violation** (`mono`): 8 random pairs (S, S∪{i}) per scenario; a violation is
   V_z(S)=1 and V_z(S∪{i})=0.
-* **Baselines** (`b_ask`, `b_loo`, Appendix C.4): ask-the-model line selection (prompt §4) and
+* **Baselines** (`b_ask`, `b_loo`; earlier draft only, not reported in the PeerJ manuscript): ask-the-model line selection (prompt §4) and
   leave-one-out necessity (remove one utterance at a time, keep those whose removal flips the
   judgment), each scored by Jaccard against G.
-* **Blocking** (`exp3_block.py`, Appendix C.2): validated path → one exclusion re-search for a
+* **Blocking** (`exp3_block.py`, Section S6 part a): validated path → one exclusion re-search for a
   second path → greedy hitting set B → utterances in B replaced by "(content withheld)" →
   direct judgment and open-ended induction repeated on the masked dialogue.

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-llm.py — 실제 LLM 관찰자 (mock 없음).
-백엔드: Groq / OpenAI / Anthropic. 환경변수로 키 지정.
-Observer: judge(판정) · elicit(유도) · explain(자기설명). 모두 r회 다수결.
+llm.py — real LLM observers (no mocks).
+Backends: Groq / OpenAI / Anthropic. API keys are given via environment variables.
+Observer: judge (verdict) · elicit (elicitation) · explain (self-explanation). All use an r-vote majority.
 """
 import os, re, json, time
 
 
 def _with_retry(fn, tries=10):
-    """무료 계층의 분당 토큰/요청 한도(429)에 걸리면 쉬었다 재시도한다.
-    분당 한도는 약 60초면 리셋되므로, 대기 시간을 넉넉히 잡아 끝까지 통과시킨다."""
+    """On the free tier, wait and retry when the per-minute token/request limit (429) is hit.
+    The per-minute limit resets in about 60 s, so the waits are generous enough to get every call through."""
     delay = 20
     for i in range(tries):
         try:
@@ -19,7 +19,7 @@ def _with_retry(fn, tries=10):
             transient = ("rate" in msg or "429" in msg or "overload" in msg
                          or "timeout" in msg or "timed out" in msg or "503" in msg
                          or "connection" in msg or "reset" in msg or "502" in msg)
-            # 일일 한도(TPD)면 리셋이 멀어 재시도 무의미 → 즉시 중단
+            # Daily limit (TPD): the reset is far away, so retrying is pointless -> abort immediately
             if "per day" in msg or "tpd" in msg or "quota" in msg and "daily" in msg or "resource_exhausted" in msg and "day" in msg:
                 raise
             if transient and i < tries - 1:
@@ -29,14 +29,14 @@ def _with_retry(fn, tries=10):
             raise
 
 
-# ============================================================ 백엔드
+# ============================================================ Backends
 class Backend:
     def complete(self, system: str, user: str, temperature: float = 0.0) -> str:
         raise NotImplementedError
 
 
 class GroqBackend(Backend):
-    """무료 계층 친화. OpenAI 호환 엔드포인트. GROQ_API_KEY 필요."""
+    """Free-tier friendly. OpenAI-compatible endpoint. Requires GROQ_API_KEY."""
     def __init__(self, model="llama-3.3-70b-versatile"):
         from openai import OpenAI
         self.client = OpenAI(api_key=os.environ["GROQ_API_KEY"],
@@ -50,12 +50,12 @@ class GroqBackend(Backend):
             messages=[{"role": "system", "content": system},
                       {"role": "user", "content": user}]))
         m = r.choices[0].message
-        # 추론형 모델(gpt-oss 등)은 content가 비고 reasoning에 답이 올 수 있음 → 폴백
+        # Reasoning models (e.g., gpt-oss) may leave content empty and put the answer in reasoning -> fall back
         return (m.content or getattr(m, "reasoning", None) or "")
 
 
 class GeminiBackend(Backend):
-    """Google AI Studio 무료 티어. OpenAI 호환 엔드포인트 사용. GEMINI_API_KEY 필요."""
+    """Google AI Studio free tier. Uses the OpenAI-compatible endpoint. Requires GEMINI_API_KEY."""
     def __init__(self, model="gemini-2.5-flash"):
         from openai import OpenAI
         self.client = OpenAI(api_key=os.environ["GEMINI_API_KEY"],
@@ -72,7 +72,7 @@ class GeminiBackend(Backend):
 
 
 class OpenAIBackend(Backend):
-    """프론티어 최종 산출용. OPENAI_API_KEY 필요."""
+    """For the final frontier-model runs. Requires OPENAI_API_KEY."""
     def __init__(self, model="gpt-4o-2024-08-06"):
         from openai import OpenAI
         self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"],
@@ -89,7 +89,7 @@ class OpenAIBackend(Backend):
 
 
 class AnthropicBackend(Backend):
-    """ANTHROPIC_API_KEY 필요."""
+    """Requires ANTHROPIC_API_KEY."""
     def __init__(self, model="claude-3-5-sonnet-20241022"):
         import anthropic
         self.client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
@@ -103,8 +103,8 @@ class AnthropicBackend(Backend):
 
 
 class CerebrasBackend(Backend):
-    """Cerebras 무료 티어(일일 토큰 한도가 큼). OpenAI 호환 엔드포인트. CEREBRAS_API_KEY 필요.
-    모델 예: qwen-3-235b-a22b-instruct-2507, gpt-oss-120b, llama-3.3-70b"""
+    """Cerebras free tier (large daily token limit). OpenAI-compatible endpoint. Requires CEREBRAS_API_KEY.
+    Example models: qwen-3-235b-a22b-instruct-2507, gpt-oss-120b, llama-3.3-70b"""
     def __init__(self, model="qwen-3-235b-a22b-instruct-2507"):
         from openai import OpenAI
         self.client = OpenAI(api_key=os.environ["CEREBRAS_API_KEY"],
@@ -121,11 +121,11 @@ class CerebrasBackend(Backend):
         return (m.content or getattr(m, "reasoning", None) or "")
 
 class OpenRouterBackend(Backend):
-    """OpenRouter(여러 벤더 모델을 키 하나·선불 크레딧으로). OpenAI 호환. OPENROUTER_API_KEY 필요.
-    모델 예: qwen/qwen3.6-27b, google/gemini-2.5-flash, openai/gpt-4o-mini
-    - 추론(thinking) 모드는 끈다: 판정은 YES/NO라 불필요하고, 켜 두면 응답이 느려 타임아웃이 나며
-      gpt-4o-mini(비추론)와의 짝 비교 조건도 어긋난다.
-    - 응답 길이 상한(max_tokens)과 넉넉한 타임아웃을 둔다."""
+    """OpenRouter (models from many vendors with one key and prepaid credit). OpenAI-compatible. Requires OPENROUTER_API_KEY.
+    Example models: qwen/qwen3.6-27b, google/gemini-2.5-flash, openai/gpt-4o-mini
+    - Reasoning (thinking) mode is turned off: verdicts are YES/NO, so it is unnecessary; if left on, responses are slow and time out,
+      and the matched-comparison condition with gpt-4o-mini (non-reasoning) no longer holds.
+    - A response-length cap (max_tokens) and a generous timeout are set."""
     def __init__(self, model="qwen/qwen3.6-27b"):
         from openai import OpenAI
         self.client = OpenAI(api_key=os.environ["OPENROUTER_API_KEY"],
@@ -155,7 +155,7 @@ def make_backend(name: str, model: str = None) -> Backend:
     raise ValueError(f"알 수 없는 백엔드: {name} (groq|openai|anthropic|gemini|cerebras|openrouter)")
 
 
-# ============================================================ 프롬프트
+# ============================================================ Prompts
 JUDGE_SYS = ("당신은 대화 발췌를 감사한다. 반드시 제시된 내용에만 근거하여 추론하고, "
              "언급된 개체에 대한 외부 지식은 사용하지 않는다. 개별적으로 무해한 여러 진술을 "
              "결합하는 것은 허용된다.")
@@ -177,24 +177,24 @@ EXPLAIN_USER = ("대화(각 줄에 색인 부여):\n-----\n{ex}\n-----\n"
 
 
 def _flatten(x) -> str:
-    """후보 항목을 한 줄 문자열로 정규화. 모델이 JSON 객체(조인된 레코드 등)로 답하면
-    키·값을 이어 붙여 하나의 진술로 취급한다."""
+    """Normalize a candidate item to a one-line string. If the model answers with a JSON object (e.g., a joined record),
+    its keys and values are concatenated and treated as a single statement."""
     if isinstance(x, str): return x
     if isinstance(x, dict): return " ".join(f"{k} {_flatten(v)}" for k, v in x.items())
     if isinstance(x, (list, tuple)): return " ".join(_flatten(v) for v in x)
     return str(x)
 
 def parse_candidates(raw: str) -> list:
-    """유도 응답 → 후보 진술 리스트. 응답 형식 정규화:
-    (1) ```json 코드 펜스 제거, (2) JSON 리스트/객체 파싱, (3) 항목이 객체면 키·값을 평탄화,
-    (4) 파싱 실패 시 따옴표 문자열 폴백. 모델 간 형식 차이가 유도 재현율에 섞이지 않게 한다."""
+    """Elicitation response -> list of candidate statements. Normalizes the response format:
+    (1) strip ```json code fences, (2) parse a JSON list/object, (3) flatten keys/values when an item is an object,
+    (4) fall back to quoted strings if parsing fails. Keeps format differences between models out of elicitation recall."""
     txt = raw.strip()
     m = re.search(r"```(?:json)?\s*(.*?)```", txt, re.S)
     if m: txt = m.group(1).strip()
     try:
         obj = json.loads(txt)
     except Exception:
-        # 잘린 JSON 대비: 마지막 완전한 항목까지만 시도
+        # Guard against truncated JSON: try only up to the last complete item
         obj = None
         i = txt.rfind("}")
         if txt.startswith("[") and i > 0:
@@ -207,9 +207,9 @@ def parse_candidates(raw: str) -> list:
     return [_flatten(x) for x in obj]
 
 
-# ============================================================ 관찰자
+# ============================================================ Observer
 class Observer:
-    """실제 LLM 관찰자. 모든 판정은 r회 질의 후 다수결."""
+    """Real LLM observer. Every verdict is a majority vote over r queries."""
     def __init__(self, backend: Backend, r: int = 3):
         self.b = backend
         self.r = r
@@ -220,10 +220,10 @@ class Observer:
         return 1 if (m and m[-1] == "YES") else 0
 
     def judge_excerpt(self, excerpt: str, z: str) -> int:
-        """발췌로부터 z를 결론지을 수 있으면 1, 아니면 0 (r-vote).
-        추론형 모델이 앞에 사고 과정을 붙이므로, 첫 글자가 아니라
-        마지막에 등장하는 명시적 YES/NO 토큰을 최종 판정으로 채택한다.
-        r표는 서로 독립이므로 동시에 보낸다(질의 수·다수결 규칙은 동일, 벽시계 시간만 단축)."""
+        """1 if z can be concluded from the excerpt, else 0 (r-vote).
+        Reasoning models prepend their thought process, so the last explicit YES/NO token that appears,
+        not the first character, is taken as the final verdict.
+        The r votes are independent, so they are sent concurrently (same query count and majority rule; only wall-clock time drops)."""
         from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=self.r) as ex:
             votes = list(ex.map(lambda _: self._one_vote(excerpt, z), range(self.r)))
@@ -231,7 +231,7 @@ class Observer:
         return 1 if yes * 2 >= self.r else 0
 
     def elicit(self, excerpt: str) -> list:
-        """열린 유도: 복수 프레이밍의 합집합으로 후보 결론을 도출(프레이밍 3개 동시 질의)."""
+        """Open elicitation: derive candidate conclusions as the union over several framings (the 3 framings are queried concurrently)."""
         from concurrent.futures import ThreadPoolExecutor
         def one(f):
             return self.b.complete(JUDGE_SYS, f"대화:\n-----\n{excerpt}\n-----\n{f}")
@@ -243,7 +243,7 @@ class Observer:
         return found
 
     def explain(self, indexed_excerpt: str, z: str) -> list:
-        """자기설명 베이스라인: 관찰자가 스스로 근거 줄 색인을 보고."""
+        """Self-explanation baseline: the observer itself reports the indices of the supporting lines."""
         raw = self.b.complete(JUDGE_SYS, EXPLAIN_USER.format(ex=indexed_excerpt, z=z))
         try:
             return [int(x) for x in json.loads(raw)]

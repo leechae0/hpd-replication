@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
- 실험 3-3 — 차단(완화) 실험: 최소 차단 집합의 실효성 검증 (독립 실행, 실 LLM)
+ Experiment 3-3 — blocking (mitigation): validating the effectiveness of minimal blocking sets (standalone, real LLM)
 ================================================================================
- 리뷰어 지적 대응: 기여 3(최소 차단 집합)이 이론에 머문다는 문제를 실증으로 해소.
- 절차(시나리오별):
-   1) 인증 경로 수집: 탐색(find_path)→인증(certify). 발견 경로의 단서를 배제한
-      재탐색 1회전으로 복수 경로 열거(P).
-   2) 탐욕 hitting set: 가장 많은 경로에 걸치는 단서를 반복 선택 → 차단 집합 B.
-   3) B의 발화를 "(content withheld)" 로 마스킹.
-   4) 차단 후 재측정: (a) 직접 판정 V(마스킹 대화, z)  (b) 열린 유도로 z 재발견 여부.
- 보고 지표:
-   - 차단 집합 크기 |B| 평균, 대화 대비 비율 |B|/|U|
-   - 차단 전 직접 판정 YES율(기준선) vs 차단 후 YES율(잔여 누출-판정)
-   - 차단 후 유도 재발견율(잔여 누출-유도)
- 실행(권장):
+ Response to a reviewer comment: addresses empirically the concern that Contribution 3
+ (minimal blocking set) remained purely theoretical.
+ Procedure (per scenario):
+   1) Collect certified paths: search (find_path) -> certify (certify). Enumerate multiple
+      paths (P) with one round of re-search that excludes the cues of the found path.
+   2) Greedy hitting set: repeatedly select the cue that covers the most paths -> blocking set B.
+   3) Mask the utterances in B as "(content withheld)".
+   4) Re-measure after blocking: (a) direct judgment V(masked dialogue, z)  (b) whether open
+      elicitation rediscovers z.
+ Reported metrics:
+   - mean blocking-set size |B| and its ratio to the dialogue, |B|/|U|
+   - direct-judgment YES rate before blocking (baseline) vs. after blocking (residual leakage, judgment)
+   - elicitation rediscovery rate after blocking (residual leakage, elicitation)
+ Run (recommended):
    OPENAI_API_KEY=.. python3 exp3_block.py --backend openai --model gpt-4o-mini \
        --limit 30 --r 5 --raw --sleep 1
 ================================================================================
@@ -36,20 +38,20 @@ def _secret_match(cands, secret):
 
 
 def enumerate_paths(obs, turns, z, max_paths=2):
-    """인증 통과 경로를 열거한다: 기본 탐색 + (발견 경로 배제) 재탐색 1회전."""
+    """Enumerate paths that pass certification: base search + one round of re-search (excluding the found path)."""
     paths = []
     qc = QueryCounter()
     S1 = find_path(obs, turns, z, qc)
     if S1 is not None and len(S1) >= 2 and certify(obs, turns, S1, z):
         paths.append(set(S1))
-        # 배제-재탐색: S1의 단서를 뺀 나머지에서 두 번째 경로 시도
+        # Exclusion re-search: try a second path among the cues remaining after removing those of S1
         keep = [i for i in range(len(turns)) if i not in S1]
         if len(keep) >= 2:
             sub = [turns[i] for i in keep]
             qc2 = QueryCounter()
             S2r = find_path(obs, sub, z, qc2)
             if S2r is not None and len(S2r) >= 2:
-                S2 = {keep[i] for i in S2r}  # 원 인덱스로 환원
+                S2 = {keep[i] for i in S2r}  # map back to original indices
                 sub_sel = [turns[i] for i in sorted(S2)]
                 if certify(obs, turns, S2, z):
                     paths.append(S2)
@@ -57,10 +59,10 @@ def enumerate_paths(obs, turns, z, max_paths=2):
 
 
 def greedy_hitting_set(paths):
-    """탐욕 근사: 매 단계 가장 많은 미타격 경로에 걸치는 단서 선택."""
+    """Greedy approximation: at each step, select the cue that covers the most not-yet-hit paths."""
     B, remaining = set(), [set(p) for p in paths]
     while remaining:
-        # 후보 단서별 커버 수
+        # number of paths covered by each candidate cue
         from collections import Counter
         cnt = Counter()
         for p in remaining:
@@ -94,10 +96,10 @@ def main():
     scen = scen[args.start:args.start + args.limit] if args.limit else scen[args.start:]
     print(f"실험 3-3 차단 — {len(scen)}개 시나리오 (backend={args.backend}, r={args.r})")
 
-    n_cert = 0            # 인증 경로가 1개 이상 나온 시나리오 수
+    n_cert = 0            # number of scenarios with at least one certified path
     sizes, ratios = [], []
     pre_yes = post_yes = post_elicit = 0
-    multi = 0             # 경로 2개 이상 열거된 시나리오
+    multi = 0             # scenarios with two or more enumerated paths
 
     done = 0
     for k, s in enumerate(scen):
@@ -118,9 +120,9 @@ def main():
             B = greedy_hitting_set(paths)
             sizes.append(len(B)); ratios.append(len(B) / len(turns))
 
-            # 기준선: 차단 전 직접 판정 (인증 경로가 있으므로 대개 YES)
+            # Baseline: direct judgment before blocking (usually YES, since a certified path exists)
             pre_yes += int(obs.judge_excerpt(render(turns), z) == 1)
-            # 차단 후: 직접 판정 + 열린 유도 재발견
+            # After blocking: direct judgment + rediscovery via open elicitation
             blocked = mask(turns, B)
             post_yes += int(obs.judge_excerpt(render(blocked), z) == 1)
             cands = obs.elicit(render(blocked))

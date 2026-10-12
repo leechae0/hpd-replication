@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-exp3_stats.py — paired comparison of the three observers in Experiment 3 (Table VI of the paper).
+exp3_stats.py — paired comparison of the three observers in Experiment 3 (Section 4.4 of the paper).
 
 All three observers were run on the same 116 Patil scenarios, so the comparison is paired:
   * binary outcomes (secret induction A, path returned, final 5/5 validation over 116):
@@ -61,7 +61,7 @@ def main():
     sids = sorted(set.intersection(*[set(v) for v in D.values()]))
     print("paired scenarios:", len(sids))
     ind = {m: {s: D[m][s]["abc"] == "A" for s in sids} for m in D}
-    # a path counts as returned only in A/B cases, as in exp3_compare.py (Table V); C cases are excluded
+    # a path counts as returned only in A/B cases, as in peerj_tables.py (Table 2); C cases are excluded
     ret = {m: {s: ("S" in D[m][s] and D[m][s].get("jac") is not None and D[m][s]["abc"] != "C") for s in sids} for m in D}
     cert = {m: {s: bool(D[m][s].get("cert", False)) for s in sids} for m in D}
     out = {"n": len(sids), "rates": {}, "pairs": {}}

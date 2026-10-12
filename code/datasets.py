@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-datasets.py — 실제 데이터셋 로더 (mock 없음).
-공통 스키마 Scenario 로 4개 데이터셋을 통일한다.
+datasets.py — real dataset loaders (no mocks).
+Unifies the 4 datasets under the common schema Scenario.
 
-  Scenario.units  : 단서 목록. 각 단서 = {"agent","key","text"}
-  Scenario.gt     : 정답 최소 단서 집합(단서 색인 frozenset). 없으면 비어 있음.
-  Scenario.secret : 비밀 z (문자열)
+  Scenario.units  : list of cues. Each cue = {"agent","key","text"}
+  Scenario.gt     : ground-truth minimal cue set (frozenset of cue indices). Empty if unavailable.
+  Scenario.secret : secret z (string)
 
-레이블(gt)이 있는 데이터에서만 정량 채점이 가능하다:
-  - Patil       : defense 필드 = 민감 조합 = 최소 지지집합           (gt 有)
-  - HotpotQA    : supporting_facts 의 gold 문단                      (gt 有)
-  - MuSiQue     : is_supporting == true 문단                          (gt 有)
-  - MAGPIE      : 경로 레이블 없음 → 정성 시연 전용                    (gt 無)
+Quantitative scoring is possible only on data that has labels (gt):
+  - Patil       : defense field = sensitive combination = minimal support set  (has gt)
+  - HotpotQA    : gold paragraphs in supporting_facts                          (has gt)
+  - MuSiQue     : paragraphs with is_supporting == true                        (has gt)
+  - MAGPIE      : no path labels -> qualitative demonstration only              (no gt)
 """
 import json, glob, os, re
 from dataclasses import dataclass, field
@@ -30,7 +30,7 @@ class Scenario:
 
 
 # ------------------------------------------------------------ Patil
-# 데이터 경로 자동 탐색: 환경변수 PATIL_DIR > 프로젝트 동봉 data/ > 기본 경로.
+# Automatic data-path lookup: env var PATIL_DIR > data/ bundled with the project > default path.
 def _find_patil_dir():
     if os.environ.get("PATIL_DIR"):
         return os.environ["PATIL_DIR"]
@@ -50,22 +50,22 @@ def _defense_tables(text):
     return [t.strip() for t in m.group(1).replace(' and ', ', ').split(',') if t.strip()]
 
 def _fmt_rows(rows, limit=6):
-    """레코드의 실제 값을 사람이 읽을 수 있게 렌더(관찰자가 조인할 값 보존)."""
+    """Render the actual values of the records in human-readable form (keeps the values the observer joins on)."""
     out = []
     for row in rows[:limit]:
         out.append("(" + ", ".join(f"{k}={v}" for k, v in row.items()) + ")")
     return "; ".join(out)
 
 def load_patil(path=None):
-    """Patil MultiAgentPrivacy 실 파일 로더. units = 에이전트별 테이블(단서)."""
+    """Loader for the actual Patil MultiAgentPrivacy files. units = per-agent tables (cues)."""
     path = path or PATIL_DIR
     out = []
     for fp in sorted(glob.glob(os.path.join(path, "experiment_*_def_adv_both.json"))):
         d = json.load(open(fp))
         run = d.get("run_2_sensitive") or {}
         secret = run.get("final_inference_result")
-        # 비밀을 '사실 결합' 부분까지로 한정(뒤의 추측 'suggesting…'은 데이터 너머 해석이라 제외).
-        # 조합 누출의 실체는 단서들이 결정하는 사실 결합이며, 관찰자도 이 부분만 확정 가능.
+        # Restrict the secret to the 'fact conjunction' part (the trailing speculation 'suggesting…' interprets beyond the data, so it is excluded).
+        # The substance of compositional leakage is the fact conjunction determined by the cues; this is also all the observer can establish.
         if secret:
             secret = re.split(r',?\s*suggest(?:s|ing|ed)?\b', secret, flags=re.I)[0].strip()
         dd = d.get("data_distribution", {})
@@ -79,7 +79,7 @@ def load_patil(path=None):
             for tname, tinfo in tables.items():
                 rows = tinfo.get("rows", []) if isinstance(tinfo, dict) else []
                 index[tname] = len(units)
-                # 실제 값을 담아 렌더(관찰자가 조인·추론할 재료를 대화에 남긴다)
+                # Render with the actual values (leaves in the dialogue the material the observer joins and infers from)
                 units.append({"agent": agent, "key": tname,
                               "text": f"{agent} was reviewing the '{tname}' records earlier today. "
                                       f"Entries: {_fmt_rows(rows)}."})
@@ -93,8 +93,8 @@ def load_patil(path=None):
 
 # ------------------------------------------------------------ HotpotQA (distractor)
 def load_hotpotqa(path):
-    """hotpot_dev_distractor_v1.json 실 파서.
-    context = [[title, [sent,...]], ...] (문단 10개), supporting_facts = [[title, sent_id],...]."""
+    """Parser for the actual hotpot_dev_distractor_v1.json.
+    context = [[title, [sent,...]], ...] (10 paragraphs), supporting_facts = [[title, sent_id],...]."""
     data = json.load(open(path))
     out = []
     for rec in data:
@@ -115,7 +115,7 @@ def load_hotpotqa(path):
 
 # ------------------------------------------------------------ MuSiQue-Answerable
 def load_musique(path, min_hops=2, max_hops=4, limit=None):
-    """musique_ans_*.jsonl 실 파서. paragraphs[i].is_supporting == true 가 정답."""
+    """Parser for the actual musique_ans_*.jsonl. paragraphs[i].is_supporting == true is the ground truth."""
     out = []
     for line in open(path):
         line = line.strip()
@@ -140,10 +140,10 @@ def load_musique(path, min_hops=2, max_hops=4, limit=None):
     return out
 
 
-# ------------------------------------------------------------ MAGPIE (레이블 없음)
+# ------------------------------------------------------------ MAGPIE (no labels)
 def load_magpie(path, limit=None):
-    """MAGPIE 자유형 대화. 경로 레이블이 없으므로 gt는 비운다(정성 시연 전용).
-    각 레코드의 발화 목록을 units 로 싣는다(형식은 데이터 판본에 맞게 조정)."""
+    """MAGPIE free-form dialogues. There are no path labels, so gt is left empty (qualitative demonstration only).
+    Each record's list of utterances is loaded as units (adjust the format to the dataset release)."""
     out = []
     recs = json.load(open(path)) if path.endswith(".json") else \
            [json.loads(l) for l in open(path) if l.strip()]
@@ -162,16 +162,16 @@ def load_magpie(path, limit=None):
     return out
 
 
-# ------------------------------------------------------------ Patil → 자연어 대화 (실 LLM)
+# ------------------------------------------------------------ Patil -> natural-language dialogue (real LLM)
 GEN_SYS = "당신은 하나의 구조화 레코드를 직장 대화 한 줄로 바꾼다. 그 레코드의 정보만 담아야 한다."
 GEN_USER = ("화자: {agent}\n보유 레코드: '{key}' — {text}\n\n"
             "{agent}가 이 레코드의 구체적 정보만을 자연스럽게 언급하는 대화 한 줄을 작성하라. "
             "다른 레코드나 추측은 언급하지 말라. 화자 접두어 없이 문장만 출력하라.")
 
 def scenario_to_dialogue(backend, scenario, use_llm=True):
-    """Patil 시나리오를 다중턴 대화로 변환(라벨 보존). 단서 1개 = 발화 1개.
-    use_llm=False면 LLM 재작성 없이 값이 담긴 원 텍스트를 그대로 발화로 사용
-    (값 보존이 확실하고 토큰을 아낀다; 무료 계층 권장)."""
+    """Convert a Patil scenario into a multi-turn dialogue (labels preserved). One cue = one utterance.
+    With use_llm=False, the original value-bearing text is used as the utterance as is, without LLM rewriting
+    (values are guaranteed to be preserved and tokens are saved; recommended on free tiers)."""
     turns = []
     for i, u in enumerate(scenario.units):
         if use_llm and backend is not None:

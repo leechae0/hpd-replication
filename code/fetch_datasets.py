@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
- fetch_datasets.py (v2) — HotpotQA · MuSiQue 를 HuggingFace parquet 로 직접 받아
- exp1_search.py 의 로더가 그대로 읽는 원본 포맷 파일로 저장한다.
+ fetch_datasets.py (v2) — downloads HotpotQA and MuSiQue directly as HuggingFace parquet and
+ saves them as original-format files that the loaders used by exp1_search.py read as is.
 ================================================================================
- 왜 parquet 직접?
-   - `datasets.load_dataset` 는 Python 3.14 에서 내부 pickling(dill/tqdm)이 깨지고,
-     hotpotqa/hotpot_qa 는 '스크립트 기반'이라 최신 datasets 가 로드를 거부한다.
-   - HF 는 모든 데이터셋을 parquet 로 자동 변환(refs/convert/parquet)해 두므로,
-     그 parquet 만 huggingface_hub 로 받아서 pyarrow 로 읽으면 위 문제를 모두 우회한다.
-     (무거운 datasets 런타임/트러스트코드 불필요 → 3.14 에서도 동작)
+ Why parquet directly?
+   - `datasets.load_dataset` breaks on Python 3.14 in its internal pickling (dill/tqdm), and
+     hotpotqa/hotpot_qa is 'script-based', so recent versions of datasets refuse to load it.
+   - HF automatically converts every dataset to parquet (refs/convert/parquet), so downloading
+     only that parquet with huggingface_hub and reading it with pyarrow avoids both problems.
+     (no heavy datasets runtime / trust-remote-code needed -> works on 3.14 too)
 
- 준비:  pip install -U huggingface_hub pyarrow
- 실행:  cd hpd && python3 fetch_datasets.py            # 둘 다
+ Setup: pip install -U huggingface_hub pyarrow
+ Run:   cd hpd && python3 fetch_datasets.py            # both
         python3 fetch_datasets.py --only hotpotqa
         python3 fetch_datasets.py --only musique --limit 500
 
- 이후:  python3 exp1_search.py \
+ Then:  python3 exp1_search.py \
             --hotpotqa data/hotpot_dev_distractor_v1.json \
             --musique  data/musique_ans_v1.0_dev.jsonl
 ================================================================================
@@ -28,8 +28,8 @@ os.makedirs(DATA, exist_ok=True)
 
 
 def _read_parquet_rows(repo_id, revision, want):
-    """repo_id 의 parquet 파일 중 경로에 want(예: 'validation')를 포함하는 것들을
-    모두 받아 행(dict) 리스트로 반환. datasets 라이브러리 없이 huggingface_hub+pyarrow 사용."""
+    """Download every parquet file of repo_id whose path contains want (e.g. 'validation')
+    and return the rows as a list of dicts. Uses huggingface_hub+pyarrow without the datasets library."""
     from huggingface_hub import HfApi, hf_hub_download
     import pyarrow.parquet as pq
 
@@ -50,8 +50,8 @@ def _read_parquet_rows(repo_id, revision, want):
 
 # ------------------------------------------------------------ HotpotQA
 def fetch_hotpotqa(limit=None):
-    """hotpotqa/hotpot_qa (distractor, validation) parquet → 원본 JSON 스키마로 저장.
-    parquet 컬럼: context={title:[...], sentences:[[...]]},
+    """hotpotqa/hotpot_qa (distractor, validation) parquet → saved in the original JSON schema.
+    parquet columns: context={title:[...], sentences:[[...]]},
                   supporting_facts={title:[...], sent_id:[...]}"""
     print("HotpotQA parquet 내려받는 중 (hotpotqa/hotpot_qa, distractor/validation)…")
     rows = _read_parquet_rows("hotpotqa/hotpot_qa",
@@ -75,11 +75,11 @@ def fetch_hotpotqa(limit=None):
 
 # ------------------------------------------------------------ MuSiQue
 def fetch_musique(limit=None):
-    """MuSiQue-Answerable(validation) parquet → load_musique 가 읽는 JSONL 로 저장.
-    parquet 컬럼: paragraphs=[{idx,title,paragraph_text,is_supporting},...],
+    """MuSiQue-Answerable (validation) parquet → saved as the JSONL that load_musique reads.
+    parquet columns: paragraphs=[{idx,title,paragraph_text,is_supporting},...],
                   question, answer, answerable"""
     print("MuSiQue parquet 내려받는 중 (dgslibisey/MuSiQue, validation)…")
-    # dgslibisey/MuSiQue 는 parquet 네이티브 → main 브랜치에서 바로 읽는다.
+    # dgslibisey/MuSiQue is natively parquet → read it directly from the main branch.
     try:
         rows = _read_parquet_rows("dgslibisey/MuSiQue", "main", "valid")
     except Exception:

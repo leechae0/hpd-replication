@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
- 실험 3-4 (선택) — 검증 보정 스윕: r ∈ {1,3,5,9} × (전체 AND vs 5중 4) 비교
+ Experiment 3-4 (optional) — validation calibration sweep: r ∈ {1,3,5,9} × (full AND vs 4-of-5)
 ================================================================================
- 목적: 실환경 진성 수용률 0.448이 '방법 결함'이 아니라 '보수적 관찰자 보정'의
- 산물임을 실측으로 보이기 위한 실험. 경로 탐색은 r=5로 1회만 수행하고,
- 같은 경로에 대해 검증 단계만 r을 바꿔 재판정한다(탐색 비용 재지불 없음).
+ Purpose: show empirically that the real-setting true-acceptance rate of 0.448 is a product of
+ conservative observer calibration, not a defect of the method. Path search is run once with r=5;
+ only the validation stage is re-judged on the same path with different r (no repeated search cost).
 
- ★ 이어하기 지원: 시나리오별 결과를 rsweep_progress.jsonl 에 저장한다.
-   끊겨도 같은 명령을 다시 실행하면 완료분은 건너뛰고 전체를 합산해 집계한다.
-   처음부터 다시 하려면 rsweep_progress.jsonl 을 지우면 된다.
+ ★ Resumable: per-scenario results are saved to rsweep_progress.jsonl.
+   If interrupted, rerun the same command: completed scenarios are skipped and all are aggregated.
+   To start over, delete rsweep_progress.jsonl.
 
- 실행:
+ Usage:
    OPENAI_API_KEY=.. python3 exp3_rsweep.py --backend openai --model gpt-4o-mini \
        --limit 30 --raw --sleep 1
 ================================================================================
@@ -97,14 +97,14 @@ def main():
             turns = scenario_to_dialogue(backend, s, use_llm=not args.raw)
             z = s.secret
             qc = QueryCounter()
-            S = find_path(obs5, turns, z, qc)      # 탐색은 r=5 고정 1회
+            S = find_path(obs5, turns, z, qc)      # search: once, with r fixed at 5
             if S is None or len(S) < 2:
                 rec = {"sid": s.sid, "no_path": True}
                 save_record(rec); done[s.sid] = rec
                 if args.sleep: time.sleep(args.sleep)
                 continue
             rrec = {}
-            for r_ in R_LIST:                       # 검증만 r 스윕
+            for r_ in R_LIST:                       # sweep r for validation only
                 obs = Observer(backend, r=r_)
                 ok, cd = certify(obs, turns, S, z, detail=True)
                 rrec[str(r_)] = {"and": int(ok),
