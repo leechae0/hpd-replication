@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-exp3_compare.py — 관찰자 모델별 실험 3-1 결과를 한 표로 비교한다.
-같은 폴더의 e2e_progress_*.jsonl (exp3_endtoend.py가 남기는 진행 파일)을 모두 읽는다.
+exp3_compare.py — compares the Experiment 3-1 results of the observer models in one table.
+Reads every e2e_progress_*.jsonl (the progress files written by exp3_endtoend.py) in the same folder.
 
-  python3 exp3_compare.py                 # 전부
-  python3 exp3_compare.py --sids common   # 모든 모델이 공통으로 완료한 시나리오만(공정 비교)
+  python3 exp3_compare.py                 # all scenarios
+  python3 exp3_compare.py --sids common   # only scenarios completed by every model (fair comparison)
 """
 import glob, json, argparse, statistics as st, re, os
 from collections import Counter
@@ -50,7 +50,7 @@ def main():
     a = ap.parse_args()
     files = sorted(glob.glob(a.glob))
     if not files:
-        print("e2e_progress_*.jsonl 이 없습니다. exp3_endtoend.py 를 먼저 돌리세요."); return
+        print("No e2e_progress_*.jsonl found. Run exp3_endtoend.py first."); return
     runs = {}
     for f in files:
         m = re.match(r"e2e_progress_(.+?)_(.+)_r(\d+)(_\w+)?\.jsonl", os.path.basename(f))
@@ -59,7 +59,7 @@ def main():
     if a.sids == "common":
         common = set.intersection(*(set(d) for d in runs.values()))
         runs = {k: {s: v[s] for s in common} for k, v in runs.items()}
-        print(f"※ 모든 모델이 공통으로 완료한 {len(common)}개 시나리오만 비교\n")
+        print(f"Note: comparing only the {len(common)} scenarios completed by every model\n")
 
     S = {k: summarize(v) for k, v in runs.items()}
     cols = list(S)
@@ -67,21 +67,21 @@ def main():
         print(f"{name:<22}" + "".join(f"{fn(S[c]):>26}" for c in cols))
     print(f"{'':<22}" + "".join(f"{c[:25]:>26}" for c in cols))
     print("-" * (22 + 26 * len(cols)))
-    row("시나리오 n", lambda s: f"{s['n']}")
-    row("유도 A/B/C", lambda s: f"{s['A']}/{s['B']}/{s['C']}")
-    row("유도 재현율(A율)", lambda s: f"{s['elic']:.3f} [{s['elic_ci'][0]:.2f},{s['elic_ci'][1]:.2f}]")
-    row("경로 확보", lambda s: f"{s['paths']}")
-    row("경로 자카드", lambda s: f"{s['jac']:.3f}")
-    row("단조성 위반율", lambda s: f"{s['mono']:.4f}")
-    row("검증 통과(AND)", lambda s: f"{s['cert']}/{s['paths']} = {s['cert_rate']:.3f}")
+    row("scenarios n", lambda s: f"{s['n']}")
+    row("induction A/B/C", lambda s: f"{s['A']}/{s['B']}/{s['C']}")
+    row("induction recall (A rate)", lambda s: f"{s['elic']:.3f} [{s['elic_ci'][0]:.2f},{s['elic_ci'][1]:.2f}]")
+    row("paths found", lambda s: f"{s['paths']}")
+    row("path Jaccard", lambda s: f"{s['jac']:.3f}")
+    row("monotonicity violation", lambda s: f"{s['mono']:.4f}")
+    row("validation passed (AND)", lambda s: f"{s['cert']}/{s['paths']} = {s['cert_rate']:.3f}")
     row("  95% CI", lambda s: f"[{s['cert_ci'][0]:.2f}, {s['cert_ci'][1]:.2f}]")
-    row("완화(5중 4)", lambda s: f"{s['cert4_rate']:.3f}")
+    row("relaxed (4 of 5)", lambda s: f"{s['cert4_rate']:.3f}")
     for k in ("base", "single", "MR1", "MR3", "MR4"):
-        row(f"  불변율 {k}", lambda s, k=k: f"{s['rel'][k]:.2f}")
-    row("직접질문 자카드", lambda s: f"{s['b_ask']:.3f}")
+        row(f"  pass rate {k}", lambda s, k=k: f"{s['rel'][k]:.2f}")
+    row("ask-the-model Jaccard", lambda s: f"{s['b_ask']:.3f}")
     row("leave-one-out", lambda s: f"{s['b_loo']:.3f}")
-    print("\n읽는 법: 유도·검증 통과율이 모델마다 다르면 '판정 불안정은 관찰자 의존'(VI절) 주장이 실측으로 뒷받침됨.")
-    print("        MR3·MR4 불변율이 상위 모델에서 오르면 병목이 방법이 아니라 관찰자 쪽임을 보임.")
+    print("\nReading: if induction and validation pass rates differ by model, the claim that judgment instability depends on the observer is supported.")
+    print("         If MR3/MR4 pass rates rise for stronger models, the bottleneck lies with the observer, not the method.")
 
 if __name__ == "__main__":
     main()

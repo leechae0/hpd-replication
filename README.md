@@ -1,32 +1,90 @@
 # HPD (Hidden-Path Discovery): replication package
 
-Code, prompts, dialogue data, per-scenario judgment logs and human annotations for
+## Title
+
+**HPD (Hidden-Path Discovery) replication package** for
 
 > Chaeyoung Lee and Sooyong Park. *Path-Level Auditing of Compositional Privacy Leakage in
 > Multi-Agent Large Language Model Dialogues.* Submitted to PeerJ Computer Science.
 
-Archived copy (this release): Zenodo, https://doi.org/10.5281/zenodo.23315183. License: MIT (code and documentation).
+Archived on Zenodo: https://doi.org/10.5281/zenodo.23315182 (concept DOI, resolves to the latest
+version; the first release, v1.0-peerj, is https://doi.org/10.5281/zenodo.23315183).
+Mirror: https://github.com/leechae0/hpd-replication.
 
-Every number in the manuscript and its Supplemental Information can be recomputed from the logs in
-this repository **without calling any model**. Re-running the observer experiments themselves
-needs API keys and is described further below.
+## Description
 
-## Repository layout
+In a multi-agent system built on large language models (LLMs), a sensitive fact can leak even when
+no single message states it: several individually harmless remarks (cues) can together let an
+observer infer it. HPD is a black-box auditing method that, given a dialogue log and an observer
+model, (1) asks the observer which sensitive conclusions it draws, (2) removes cues one at a time
+until none can be dropped, leaving a minimal cue combination (a path), and (3) tests that path for
+sufficiency, compositionality, and invariance under paraphrasing, irrelevant-context insertion and
+entity substitution.
+
+This package contains the code, observer prompts, rendered dialogues, per-scenario judgment logs of
+the three LLM observers, and both annotators' human labels. Every number in the manuscript and its
+Supplemental Information can be recomputed from the included logs **without calling any model**
+(see Usage Instructions). Re-running the observer experiments themselves needs API keys.
+
+**Language.** Everything in this repository is in English except text that was an experimental
+input, the annotation instrument, or raw recorded data: the observer prompts (Korean instructions;
+the dialogues and secrets are the English originals of the benchmark), the annotator workbooks and
+instructions, a few annotator memos, some observer outputs, and archived development logs.
+`docs/CODEBOOK.md` lists every such string with an English gloss, `docs/PROMPTS.md` gives each
+prompt verbatim with an English gloss, and `annotation/annotator_guide_en.md` translates the
+annotator instructions in full.
+
+## Dataset Information
+
+| Data | Location | Content | Source and licence |
+|---|---|---|---|
+| Patil et al. benchmark scenarios (119 files, 116 used) | `data/patil/` (downloaded, not redistributed) | per participant: named tables (the cues), the sensitive table combination (`defense`), and the sensitive conclusion (the secret) | V. Patil, E. Stengel-Eskin and M. Bansal, *The Sum Leaks More Than Its Parts* (arXiv:2509.14284), https://github.com/Vaidehi99/MultiAgentPrivacy; fetched and MD5-checked by `code/fetch_patil.py` against `data/patil_manifest.json` |
+| Rendered dialogues | `data/dialogues/patil_dialogues_116.jsonl` | the 116 dialogues exactly as shown to the observers; fields `sid`, `secret`, `gt` (annotated cue indices), `turns` (`speaker`, `text`, `unit_idx`) | derived from the Patil scenarios by the deterministic rendering in `docs/DIALOGUE_RULES.md`; regenerate with `code/export_dialogues.py` |
+| Observer judgment logs | `results/logs/` | one JSON line per scenario and observer; fields described under Log files below | produced by this study |
+| Secret-induction candidates and human labels | `results/induction/` | candidate conclusions per scenario and observer; human labels (`ann1`, `ann2`, `final`, `note`) | produced by this study |
+| Transformation-fidelity labels | `results/mr_fidelity/` | 90 transformed excerpts with human labels | produced by this study |
+| Annotator workbooks | `annotation/` | the workbooks the two annotators filled in | produced by this study; see `annotation/README.md` |
+| HotpotQA (distractor, dev) and MuSiQue-Answerable (dev) | `data/` (downloaded, not redistributed) | used only for the controlled checks of Section S5 | Yang et al. (2018); Trivedi et al. (2022); fetched from Hugging Face by `code/fetch_datasets.py` |
+
+The study involved no personal data: all dialogues are synthetic benchmark scenarios.
+
+## Code Information
+
+All scripts are in `code/` (Python 3.10 or later) and run from that folder.
+
+| Script | Role |
+|---|---|
+| `llm.py` | model backends (OpenAI, OpenRouter, and others) and the observer: binary judgment with r-fold majority vote, secret induction; the observer prompts |
+| `datasets.py`, `fetch_patil.py`, `fetch_datasets.py`, `export_dialogues.py` | data loading, download with checksums, dialogue rendering |
+| `search.py` | path discovery (one-at-a-time cue removal) and complete enumeration for small cases |
+| `mr_nlp.py` | the transformations MR1 (rephrasing), MR3 (irrelevant-sentence insertion), MR4 (entity substitution) with spaCy, and their deterministic checks |
+| `exp3_endtoend.py`, `exp3_mr4_rerun.py` | main observer experiment: induction, discovery, validation, monotonicity probe (Sections 4.1 to 4.4) |
+| `exp3_order.py`, `exp3_rsweep.py`, `exp3_block.py`, `exp_c3_multipath.py` | removal-order sensitivity, repeated judgments, blocking, multiple paths (Sections S3, S4, S6) |
+| `exp3_induction.py`, `make_annotation_xlsx.py`, `collect_annotations.py` | human audit: candidate dump, annotator workbooks, label collection and agreement |
+| `exp1_search.py`, `exp1_table3.py`, `exp2_certify.py` | controlled checks with a rule-based judge (Section 4.5, Section S5) |
+| `exp3_stats.py`, `exp3_mr3_similarity.py`, `exp3_mr_fidelity.py` | statistics and audits of the transformations |
+| `peerj_tables.py`, `peerj_sensitivity.py` | Tables 2 and 3, Section S7 and Table S6 from the logs |
+
+### Repository layout
 
 ```
 code/         all scripts used in the paper (Python 3.10 or later)
 data/         rendered dialogues and the manifest of the Patil benchmark files (data/README.md)
 docs/         PROMPTS.md: observer prompts, verbatim Korean with English gloss
               DIALOGUE_RULES.md: how dialogues, cues, secrets and transformations are built
+              CODEBOOK.md: English glosses for every Korean string left in the repository
 results/      logs and summaries behind every reported number
   logs/         per-scenario judgment logs of the observer runs
   induction/    secret-induction candidates and human labels
   mr_fidelity/  human audit of the transformations
-annotation/   annotator workbooks, annotator guide, second annotator's returned workbooks
+annotation/   annotator workbooks, annotator guide (Korean original and English translation),
+              second annotator's returned workbooks
 archive/      analyses of an earlier draft and development logs; not used in the paper
 ```
 
-## Setup
+## Usage Instructions
+
+### Setup
 
 ```bash
 pip install -r requirements.txt
@@ -38,7 +96,7 @@ python3 fetch_patil.py                         # 119 Patil scenario files -> dat
 `fetch_datasets.py` (HotpotQA and MuSiQue) is needed only to re-run the controlled checks of
 Section S5. `exp3_mr3_similarity.py` additionally needs `en_core_web_md`.
 
-## Quick check (no model calls, under a minute)
+### Quick check (no model calls, under a minute)
 
 ```bash
 cd code
@@ -46,7 +104,7 @@ python3 peerj_tables.py         # Tables 2 and 3, Section 4.4 monotonicity, Sect
 python3 peerj_sensitivity.py    # Section S7 and Table S6 (12 scenarios with unsupported secrets excluded)
 ```
 
-## Where each number comes from
+### Where each number comes from
 
 All commands run from `code/`. None of them calls a model.
 
@@ -71,7 +129,7 @@ obtained the committed outputs. The only differences were the key order in
 `semantic_scores.json` and the Wilcoxon p-values in `exp3_stats_mr4fix.json`; these are filled in
 only when `scipy` is installed and are not reported in the paper.
 
-## Re-running the observer experiments (calls the models)
+### Re-running the observer experiments (calls the models)
 
 Set keys in the shell only; never write them into a file or commit them.
 
@@ -100,7 +158,38 @@ on restart. Hosted models change and are not deterministic even at temperature 0
 will not reproduce the logged judgments exactly; the logs in `results/logs/` are the runs the
 paper reports.
 
-## Observers and settings
+## Requirements
+
+* Python 3.10 or later.
+* Python packages in `requirements.txt`: `openai>=1.0`, `spacy>=3.7,<3.8`, `numpy`, `openpyxl`;
+  spaCy models `en_core_web_sm` (most scripts) and `en_core_web_md` (`exp3_mr3_similarity.py` only).
+* Optional: `scipy` (Wilcoxon p-values in `exp3_stats.py`, not reported), `huggingface_hub` and
+  `pyarrow` (`fetch_datasets.py`), `anthropic` (unused backend).
+* Re-running the observer experiments needs an OpenAI API key and an OpenRouter API key. The
+  quick check and every command in "Where each number comes from" need no key and no network
+  access beyond the initial data download.
+
+## Methodology
+
+1. **Data processing.** Each Patil scenario is turned into a dialogue with one utterance per table
+   (cue); the annotated cue set is the sensitive combination named in `defense`, and the secret is
+   the scenario's sensitive conclusion. Scenarios without a proper sensitive combination are
+   dropped (116 of 119 remain). The rendering is deterministic and value-preserving
+   (`docs/DIALOGUE_RULES.md`).
+2. **Induction.** The observer lists the conclusions it can draw from the full dialogue (three
+   framings, unioned). A scenario passes the gate if a candidate matches the benchmark secret
+   lexically (A) or the observer affirms the secret on the full dialogue (B).
+3. **Discovery.** Starting from all cues, each cue is removed once and kept out if the observer
+   still concludes the secret; the result is a minimal path.
+4. **Validation.** The path is checked for sufficiency, compositionality (no single cue suffices),
+   and invariance under MR1, MR3 and MR4. Every binary judgment is the majority of r = 5 calls at
+   temperature 0.
+5. **Human audit.** Two annotators labelled secret induction (108 sampled rows of 348) and
+   transformation fidelity (90 rows); agreement is reported as raw agreement and Cohen's kappa.
+6. **Analysis.** Rates, confidence intervals and the sensitivity analyses are computed from the
+   logs by the scripts listed above.
+
+### Observers and settings
 
 | Observer | Access | Model identifier | Settings |
 |---|---|---|---|
@@ -113,12 +202,7 @@ times and decided by majority vote (`llm.Observer`). OpenRouter requests were no
 upstream provider (`provider: {allow_fallbacks: true}` in `code/llm.py`), so the serving provider
 may have varied between calls.
 
-**Language.** The dialogues and secrets are the English originals of the benchmark. The observer
-instructions are in Korean; `docs/PROMPTS.md` gives each prompt verbatim with an English gloss.
-The Korean string literals that remain in the code are these prompts, console messages, and the
-text of the annotator workbooks. All comments and docstrings are in English.
-
-## Log files
+### Log files
 
 `results/logs/e2e_progress_<observer>_r5_mr4fix.jsonl` holds one record per scenario:
 
@@ -138,7 +222,7 @@ text of the annotator workbooks. All comments and docstrings are in English.
 `e2e_progress_<observer>_r5.jsonl` are the same runs before the MR4 correction; they are the input
 of `exp3_mr4_rerun.py`. A path counts as returned only when `abc` is A or B and `S` is not null.
 
-## Human annotation
+### Human annotation
 
 See `annotation/README.md`. In short, `results/induction/annotation_sheet.csv` (108 labelled rows
 out of 348) and `results/mr_fidelity/fidelity_sheet.csv` (90 rows) hold the first annotator's
@@ -146,10 +230,27 @@ labels (`ann1`, `final`), the second annotator's labels (`ann2`) and notes. The 
 started from preliminary labels drafted by an LLM assistant and set every final label; the second
 annotator worked blind and without AI tools.
 
-## Data attribution
+## Citations
 
-The Patil scenarios are from V. Patil, E. Stengel-Eskin and M. Bansal, *The Sum Leaks More Than
-Its Parts* (arXiv:2509.14284), https://github.com/Vaidehi99/MultiAgentPrivacy. They are not
-redistributed here; `fetch_patil.py` downloads them and checks them against
-`data/patil_manifest.json`. HotpotQA (Yang et al., 2018) and MuSiQue (Trivedi et al., 2022) are
-downloaded from their Hugging Face mirrors by `fetch_datasets.py`.
+If you use this package, please cite the article:
+
+> Chaeyoung Lee and Sooyong Park. Path-Level Auditing of Compositional Privacy Leakage in
+> Multi-Agent Large Language Model Dialogues. PeerJ Computer Science (submitted), 2026.
+> Replication package: https://doi.org/10.5281/zenodo.23315182
+
+Data and tools used:
+
+* V. Patil, E. Stengel-Eskin and M. Bansal. *The Sum Leaks More Than Its Parts: Compositional
+  Privacy Risks and Mitigations in Multi-Agent Collaboration.* arXiv:2509.14284, 2025.
+* Z. Yang et al. *HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering.*
+  EMNLP 2018.
+* H. Trivedi et al. *MuSiQue: Multihop Questions via Single-hop Question Composition.* TACL 2022.
+* M. Honnibal et al. *spaCy: Industrial-strength Natural Language Processing in Python.*
+  https://spacy.io
+
+## License & Contribution Guidelines
+
+The code and documentation are released under the MIT License (`LICENSE`). The third-party
+datasets are not redistributed and remain under their own licences. This repository is a frozen
+replication package for the article; please report problems or questions through the GitHub issue
+tracker (https://github.com/leechae0/hpd-replication/issues) or to the corresponding author.

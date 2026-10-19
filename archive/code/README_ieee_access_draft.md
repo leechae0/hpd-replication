@@ -109,7 +109,7 @@ into annotator workbooks and read back as follows (no API calls):
 
 ```bash
 python3 make_annotation_xlsx.py          # -> results/annotation_v2/작업1_유도판정.xlsx (348 rows), 작업2_변환판정.xlsx (90 rows)
-# annotators fill the single '판정' column (instructions: results/annotation_v2/README_판정자용.md and the '안내' tab)
+# annotators fill the single '판정' (label) column (instructions: results/annotation_v2/README_판정자용.md, "README for annotators", and the '안내' (instructions) tab)
 python3 collect_annotations.py task1 작업1_유도판정_<A>.xlsx [작업1_유도판정_<B>.xlsx]   # -> ann1/ann2 of annotation_sheet.csv
 python3 collect_annotations.py task2 작업2_변환판정_<A>.xlsx [작업2_변환판정_<B>.xlsx]   # -> ann1/ann2 of fidelity_sheet.csv
 python3 exp3_induction.py score ;  python3 exp3_mr_fidelity.py score

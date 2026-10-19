@@ -27,6 +27,9 @@ from openpyxl import load_workbook
 csv.field_size_limit(10 ** 9)
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "..", "results")
+# The annotator workbooks were written in Korean (see annotation/README.md), so the sheet names and
+# column headers matched below are Korean: "작업1_판정" = "Task 1 labels", "작업2_판정" = "Task 2
+# labels", "판정" = "label", "메모" = "memo". English headers ("Label", "Memo") are also accepted.
 TASKS = {
     "task1": dict(csv=os.path.join(RES, "induction", "annotation_sheet.csv"), sheet="작업1_판정",
                   key=("sid", "observer"), labels={"M", "X", "A"}),
@@ -39,8 +42,8 @@ def read_workbook(path, t):
     wb = load_workbook(path, data_only=True)
     ws, ks = wb[t["sheet"]], wb["_key"]
     head = [str(c.value or "") for c in ws[1]]
-    c_lab = next(i for i, h in enumerate(head) if h.startswith("판정"))
-    c_memo = next(i for i, h in enumerate(head) if h.startswith("메모"))
+    c_lab = next(i for i, h in enumerate(head) if h.startswith(("판정", "Label")))
+    c_memo = next(i for i, h in enumerate(head) if h.startswith(("메모", "Memo")))
     key = {row[0]: tuple(row[1:1 + len(t["key"])]) for row in ks.iter_rows(min_row=2, values_only=True) if row[0] is not None}
     out, bad = {}, []
     for row in ws.iter_rows(min_row=2, values_only=True):
@@ -48,7 +51,7 @@ def read_workbook(path, t):
             continue
         lab = str(row[c_lab] or "").strip().upper()
         if lab not in t["labels"]:
-            bad.append((row[0], lab or "(빈칸)"))
+            bad.append((row[0], lab or "(blank)"))
         out[key[row[0]]] = (lab, str(row[c_memo] or "").strip(), row[0])
     if len(out) != len(key):
         sys.exit(f"{path}: {len(out)} rows in the sheet but {len(key)} in _key — rows were added or deleted")

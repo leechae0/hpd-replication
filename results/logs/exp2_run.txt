@@ -1,23 +1,19 @@
-실험 2 (실 spaCy MR) — Patil 116개
+Experiment 2 (real spaCy MRs) — Patil, 116 scenarios
 
-[측정 0] 구현 검증 (변형이 명세대로 — 결정적)
-   OK  MR1_인물보존         116/116
-   OK  MR4_원래이름_0       116/116
-   OK  MR3_추가_무관        116/116
+[Measure 0] implementation check (transformations as specified — deterministic)
+   OK  MR1_persons_kept     116/116
+   OK  MR4_no_old_name      116/116
+   OK  MR3_added_unrelated  116/116
 
-[측정 1] soundness (진성 유지 ≈ recall): 116/116 = 1.000
+[Measure 1] soundness (genuine paths kept ≈ recall): 116/116 = 1.000
 
-[측정 2] coverage (스퓨리어스 검출 ≈ precision): 75.0%
+[Measure 2] coverage (spurious paths caught ≈ precision): 75.0%
    surface  116/116
    entity   116/116
    noise    116/116
-   cooccur  0/116  ← 잔여 오류(우연 상관, 정직 보고)
+   cooccur  0/116  ← residual error (coincidental co-occurrence, reported as is)
 
-[측정 3] 비중복성 (검사 제거 시 해당 유형 통과):
-   MR1 제거 → surface 유형 통과: 116/116
-   MR4 제거 → entity 유형 통과: 116/116
-   MR3 제거 → noise 유형 통과: 116/116
-
-real	2m22.591s
-user	2m22.061s
-sys	0m0.616s
+[Measure 3] non-redundancy (paths of this type that pass when the check is removed):
+   MR1 removed → surface type passes: 116/116
+   MR4 removed → entity type passes: 116/116
+   MR3 removed → noise type passes: 116/116

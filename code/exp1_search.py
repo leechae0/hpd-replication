@@ -36,13 +36,13 @@ class OracleObserver:
 
 def run_dataset(name, scen, seeds=(0, 1, 2, 3, 4)):
     # Noise levels: (label, ε, r)
-    LEVELS = [("무잡음", 0.00, 1), ("약", 0.05, 5), ("중", 0.10, 7), ("강", 0.20, 9)]
+    LEVELS = [("noise-free", 0.00, 1), ("weak", 0.05, 5), ("medium", 0.10, 7), ("strong", 0.20, 9)]
     us = [len(s.units) for s in scen]
     print("=" * 70)
-    print(f"[{name}] 시나리오 {len(scen)}개 · 단서 평균 {st.mean(us):.1f}개 "
-          f"· 정답 평균 {st.mean([len(s.gt) for s in scen]):.1f}개")
+    print(f"[{name}] {len(scen)} scenarios · mean cues {st.mean(us):.1f} "
+          f"· mean annotated cues {st.mean([len(s.gt) for s in scen]):.1f}")
     print("-" * 70)
-    print("  잡음(ε,r)   | 정확 복원율(평균±표준편차) | 자카드(평균) | 질의수")
+    print("  noise (ε, r)            | exact recovery (mean±sd) | Jaccard (mean) | queries")
     for label, eps, r in LEVELS:
         exact, jac, q = [], [], []
         for sd in seeds:
@@ -58,29 +58,29 @@ def run_dataset(name, scen, seeds=(0, 1, 2, 3, 4)):
                 if set(found) == set(s.gt): e += 1
             exact.append(e); jac.append(st.mean(jj)); q.append(st.mean(qq))
         sd_e = st.stdev(exact) if len(exact) > 1 else 0.0
-        print(f"  {label:<4}(ε={eps:.2f},r={r}) | {st.mean(exact):6.1f} ± {sd_e:4.1f} / {len(scen):<4}"
+        print(f"  {label:<11}(ε={eps:.2f},r={r}) | {st.mean(exact):6.1f} ± {sd_e:4.1f} / {len(scen):<4}"
               f"| {st.mean(jac):.3f}       | {st.mean(q):.0f}")
     # Baseline: random selection given the ground-truth size (lower bound on performance)
     def rnd(seed):
         rng = random.Random(seed)
         return st.mean([jaccard(set(rng.sample(range(len(s.units)), len(s.gt))), s.gt) for s in scen])
-    print(f"  [베이스라인] 무작위(크기 제공) 자카드 = {st.mean([rnd(sd) for sd in seeds]):.3f}"
-          f" · 전수 질의수 = {st.mean([2**len(s.units) for s in scen]):.0f} "
-          f"(제안: {st.mean([len(s.units)+1 for s in scen]):.0f})")
+    print(f"  [baseline] random (size given) Jaccard = {st.mean([rnd(sd) for sd in seeds]):.3f}"
+          f" · exhaustive queries = {st.mean([2**len(s.units) for s in scen]):.0f} "
+          f"(proposed: {st.mean([len(s.units)+1 for s in scen]):.0f})")
     print()
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--patil", default=None, help="Patil data 디렉터리(기본: 환경변수/기본경로)")
-    ap.add_argument("--hotpotqa", default=None, help="hotpot_dev_distractor_v1.json 경로")
-    ap.add_argument("--musique", default=None, help="musique_ans_*.jsonl 경로")
+    ap.add_argument("--patil", default=None, help="Patil data directory (default: environment variable / default path)")
+    ap.add_argument("--hotpotqa", default=None, help="path to hotpot_dev_distractor_v1.json")
+    ap.add_argument("--musique", default=None, help="path to musique_ans_*.jsonl")
     args = ap.parse_args()
 
-    run_dataset("Patil (프라이버시)", load_patil(args.patil))
+    run_dataset("Patil (privacy)", load_patil(args.patil))
     if args.hotpotqa:
-        run_dataset("HotpotQA (2홉)", load_hotpotqa(args.hotpotqa))
+        run_dataset("HotpotQA (2-hop)", load_hotpotqa(args.hotpotqa))
     if args.musique:
-        run_dataset("MuSiQue (2–4홉)", load_musique(args.musique, limit=500))
+        run_dataset("MuSiQue (2–4-hop)", load_musique(args.musique, limit=500))
     if not (args.hotpotqa or args.musique):
-        print("※ HotpotQA·MuSiQue 는 --hotpotqa / --musique 로 실 파일 경로를 지정하면 함께 실행됩니다.")
+        print("Note: HotpotQA and MuSiQue also run when their file paths are given with --hotpotqa / --musique.")

@@ -26,7 +26,7 @@ try:
     _NLP = spacy.load("en_core_web_sm")
 except OSError as e:  # pragma: no cover
     raise OSError(
-        "spaCy 모델 en_core_web_sm 이 없습니다. 먼저 설치하세요:\n"
+        "The spaCy model en_core_web_sm is not installed. Install it first:\n"
         "    pip install spacy\n"
         "    python -m spacy download en_core_web_sm"
     ) from e
@@ -162,9 +162,9 @@ def verify_mr4(before, after, mapping):
 
     same_rest = (nonname_words(before, set(mapping))
                  == nonname_words(after, set(mapping.values())))
-    return {"원래이름_0개남음": len(left) == 0, "남은이름": left,
-            "인물수_보존": len(people_after) >= 1,
-            "이름외_토큰_불변(근사)": same_rest}
+    return {"no_original_name_left": len(left) == 0, "names_left": left,
+            "persons_present": len(people_after) >= 1,
+            "non_name_tokens_unchanged_approx": same_rest}
 
 
 # ==============================================================================
@@ -178,7 +178,7 @@ def mr2_remove(turns, remove_idx):
 def verify_mr2(before, after, removed_idx):
     gone = all(before[i] not in after for i in removed_idx)
     rest = [t for i, t in enumerate(before) if i not in set(removed_idx)] == after
-    return {"대상_삭제됨": gone, "나머지_보존": rest}
+    return {"target_removed": gone, "rest_preserved": rest}
 
 
 # ==============================================================================
@@ -216,7 +216,7 @@ def verify_mr3(turns_before, picked):
     """[Measure 0] Deterministic check: added sentences share zero content words with the original dialogue."""
     dia = set().union(*[_content_lemmas(t["text"]) for t in turns_before]) if turns_before else set()
     detail = {s[:30]: len(_content_lemmas(s) & dia) == 0 for s in picked}
-    return {"추가문장_모두_무관": all(detail.values()) if detail else True, "상세": detail}
+    return {"all_added_unrelated": all(detail.values()) if detail else True, "detail": detail}
 
 
 # ==============================================================================
@@ -258,9 +258,9 @@ def verify_mr1(before, after):
 
     pb, nb = keyfacts(before)
     pa, na = keyfacts(after)
-    return {"인물_보존": pb == pa, "수치_보존": nb == na,
-            "표면_변경": before.strip() != after.strip(),
-            "주의": "뜻 보존 최종 확인은 사람 표본 검수(일치율)"}
+    return {"persons_preserved": pb == pa, "numbers_preserved": nb == na,
+            "surface_changed": before.strip() != after.strip(),
+            "note": "meaning preservation is confirmed by a human audit of a sample (agreement rate)"}
 
 
 # ==============================================================================
@@ -274,26 +274,26 @@ if __name__ == "__main__":
         {"speaker": "Harpreet", "text": "I booked the restaurant for the dinner yesterday."},  # distractor cue
     ]
     text = "\n".join(f'{t["speaker"]}: {t["text"]}' for t in turns)
-    print("원본:\n" + text)
+    print("Original:\n" + text)
 
-    print("\n== MR4 개명 (NER + 규칙 상호참조 + 치환) ==")
+    print("\n== MR4 renaming (NER + rule-based coreference + substitution) ==")
     r4, mp, coref = mr4_rename(text)
     print(r4)
-    print("매핑:", mp)
-    print("상호참조 링크(대명사→인물):", coref)
-    print("검증:", verify_mr4(text, r4, mp))
+    print("mapping:", mp)
+    print("coreference links (pronoun → person):", coref)
+    print("check:", verify_mr4(text, r4, mp))
 
-    print("\n== MR2 제거 (구조적: 0번 발화 삭제) ==")
+    print("\n== MR2 removal (structural: utterance 0 deleted) ==")
     kept = mr2_remove(turns, [0])
     print("\n".join(f'{t["speaker"]}: {t["text"]}' for t in kept))
-    print("검증:", verify_mr2(turns, kept, [0]))
+    print("check:", verify_mr2(turns, kept, [0]))
 
-    print("\n== MR3 무관주입 (검색 + 무관 필터) ==")
+    print("\n== MR3 irrelevant insertion (retrieval + unrelatedness filter) ==")
     t3, picked = mr3_inject_noise(turns, 2)
-    print("추가된 무관 문장:", picked)
-    print("검증:", verify_mr3(turns, picked))
+    print("inserted unrelated sentences:", picked)
+    print("check:", verify_mr3(turns, picked))
 
-    print("\n== MR1 재표현 (품사 기반 어휘 치환 baseline) ==")
+    print("\n== MR1 rephrasing (POS-based lexical substitution baseline) ==")
     r1 = mr1_reframe(text)
     print(r1)
-    print("검증:", verify_mr1(text, r1))
+    print("check:", verify_mr1(text, r1))

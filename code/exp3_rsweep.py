@@ -64,14 +64,14 @@ def aggregate(done):
 def report(done):
     tot, andp, p4, rel = aggregate(done)
     n_skip = sum(1 for rec in done.values() if rec.get("no_path"))
-    print("\n" + "=" * 64 + f"\n실험 3-4 결과 (경로 확보 {tot}개 · 경로 미확보 {n_skip}개)\n" + "=" * 64)
-    print(f"{'r':>3} | {'전체 AND':>14} | {'5중 4':>14} | base·single·MR1·MR3·MR4")
+    print("\n" + "=" * 64 + f"\nExperiment 3-4 results ({tot} with a path · {n_skip} without a path)\n" + "=" * 64)
+    print(f"{'r':>3} | {'all five (AND)':>14} | {'four of five':>14} | base·single·MR1·MR3·MR4")
     for r_ in R_LIST:
         if tot:
             rl = " ".join(f"{rel[r_][k]/tot:.2f}" for k in KEYS)
             print(f"{r_:>3} | {andp[r_]:>3}/{tot} = {andp[r_]/tot:.3f} | {p4[r_]:>3}/{tot} = {p4[r_]/tot:.3f} | {rl}")
-    print("\n해석 지침: r 증가에 따라 AND 통과율이 오르면 0.448은 판정 요동(보정) 문제라는")
-    print("주장이 실측으로 지지됨. 5중 4와 AND의 간격은 임계 완화 손잡이의 효과 크기.")
+    print("\nReading: if the all-five pass rate rises with r, the 0.448 rate is a judgment-instability (calibration) problem,")
+    print("as claimed. The gap between four-of-five and all-five is the effect size of relaxing the threshold.")
 
 
 def main():
@@ -88,8 +88,8 @@ def main():
     scen = load_patil()[args.start:args.start + args.limit]
     done = load_progress()
     remain = [s for s in scen if s.sid not in done]
-    print(f"실험 3-4 검증 보정 스윕 — 대상 {len(scen)}개 중 완료 {len(scen)-len(remain)}개, "
-          f"이번에 돌릴 것 {len(remain)}개 (r={R_LIST})")
+    print(f"Experiment 3-4 validation calibration sweep — {len(scen)-len(remain)} of {len(scen)} done, "
+          f"{len(remain)} to run now (r={R_LIST})")
 
     for k, s in enumerate(remain):
         try:
@@ -113,12 +113,12 @@ def main():
             rec = {"sid": s.sid, "S": sorted(S), "r": rrec}
             save_record(rec); done[s.sid] = rec
             if (k + 1) % 3 == 0:
-                print(f"  ...{k+1}/{len(remain)} (누적 경로 확보 "
+                print(f"  ...{k+1}/{len(remain)} (paths found so far "
                       f"{sum(1 for x in done.values() if not x.get('no_path'))})")
             if args.sleep: time.sleep(args.sleep)
         except Exception as e:
-            print(f"  [중단] {s.sid}에서 오류: {str(e)[:100]}")
-            print(f"  → 지금까지의 완료분으로 집계합니다. 같은 명령으로 재실행하면 이어서 돕니다.")
+            print(f"  [stopped] error at {s.sid}: {str(e)[:100]}")
+            print(f"  → aggregating the completed scenarios. Re-run the same command to resume.")
             break
 
     report(done)

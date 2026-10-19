@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
- 실험 3-2 — 대화 수준 누출 탐지 (독립 실행, 실 LLM 필요)
+ Experiment 3-2 — dialogue-level leakage detection (stand-alone, needs a real LLM)
 ================================================================================
- 양성(비밀 있는 Patil 대화) + 음성(비밀 없는 대화 3종)을 섞은 풀에서,
- 레이블을 감춘 채 유도→탐색→인증 전 과정을 적용해 누출 대화를 골라낸다.
-   판정: 인증을 통과한 경로가 하나라도 있으면 '누출'로 플래그.
-   지표: 대화 수준 정밀도·재현율·F1·오탐률, 양성 적중 시 기밀 일치도·경로 자카드.
- 음성은 negatives.py로 구성(민감 조합만 제거 / 단서 뒤섞기 / 자연 정상=MAGPIE 선택).
- 실행:
+ From a pool mixing positives (Patil dialogues with a secret) and negatives (three kinds of dialogue without one),
+ the full induction → search → validation pipeline is applied with labels hidden to pick out the leaking dialogues.
+   Decision: a dialogue is flagged as 'leaking' if any path passes validation.
+   Metrics: dialogue-level precision, recall, F1, false-positive rate; for true positives, secret match and path Jaccard.
+ Negatives are built by negatives.py (sensitive combination removed / cues shuffled / natural benign dialogues = MAGPIE, optional).
+ Usage:
    GROQ_API_KEY=..  python3 exp3_detect.py --backend groq --limit 20 --r 3
    OPENAI_API_KEY=.. python3 exp3_detect.py --backend openai --model gpt-4o-2024-08-06
 ================================================================================
@@ -23,8 +23,8 @@ import negatives as NEG
 
 
 def _secret_match(cands, secret):
-    """유도 후보 집합 중 하나라도 정답 비밀의 핵심 내용과 겹치면 일치로 본다.
-    (라벨 길이에 비례하는 엄격 임계 대신, 고정 임계 2개 내용어 겹침으로 공정하게 측정.)"""
+    """A match if any induction candidate overlaps the core content of the benchmark secret.
+    (Measured with a fixed threshold of 2 shared content words instead of a strict threshold proportional to the label length.)"""
     import re as _re
     st = {w for w in _re.findall(r"[a-z0-9]{3,}", secret.lower())}
     for c in cands:
@@ -34,8 +34,8 @@ def _secret_match(cands, secret):
     return False
 
 def detect(obs, turns, max_cands=5):
-    """유도로 비밀 후보를 뽑고, 각 후보에 탐색+인증을 적용.
-    인증을 통과한 경로가 있으면 (True, 비밀, 경로), 없으면 (False, None, None)."""
+    """Draw secret candidates by induction and apply search + validation to each.
+    Returns (True, secret, path) if some path passes validation, otherwise (False, None, None)."""
     full = render(turns)
     cands = []
     for z in obs.elicit(full):
@@ -56,11 +56,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--backend", required=True, choices=["groq", "openai", "anthropic", "gemini", "cerebras", "openrouter"])
     ap.add_argument("--model", default=None)
-    ap.add_argument("--limit", type=int, default=20, help="양성(Patil) 시나리오 수 상한")
+    ap.add_argument("--limit", type=int, default=20, help="maximum number of positive (Patil) scenarios")
     ap.add_argument("--r", type=int, default=3)
-    ap.add_argument("--magpie", default=None, help="자연 정상 대화(MAGPIE) 경로(선택)")
-    ap.add_argument("--raw", action="store_true", help="대화를 값 그대로 렌더(3-1과 동일, 권장)")
-    ap.add_argument("--sleep", type=float, default=0.0, help="시나리오 간 대기 초(rate limit 완화)")
+    ap.add_argument("--magpie", default=None, help="path to natural benign dialogues (MAGPIE), optional")
+    ap.add_argument("--raw", action="store_true", help="render the dialogue with values as is (same as 3-1; recommended)")
+    ap.add_argument("--sleep", type=float, default=0.0, help="seconds to wait between scenarios (eases rate limits)")
     args = ap.parse_args()
 
     backend = make_backend(args.backend, args.model)
@@ -77,7 +77,7 @@ def main():
 
     pool = [("pos", "leak", s) for s in pos] + [("neg", k, s) for k, s in negs]
     rng.shuffle(pool)
-    print(f"탐지 풀: 양성 {len(pos)} · 음성 {len(negs)} "
+    print(f"detection pool: {len(pos)} positives · {len(negs)} negatives "
           f"(backend={args.backend}, r={args.r})")
 
     TP = FP = TN = FN = 0
@@ -106,8 +106,8 @@ def main():
             if args.sleep:
                 time.sleep(args.sleep)
         except Exception as e:
-            print(f"  [중단] {i+1}번째에서 오류로 멈춤: {str(e)[:100]}")
-            print(f"  → 여기까지 완료분({TP+FP+FN+TN}개)으로 결과를 집계합니다.")
+            print(f"  [stopped] error at item {i+1}: {str(e)[:100]}")
+            print(f"  → aggregating the results of the completed items ({TP+FP+FN+TN}).")
             break
 
     prec = TP / (TP + FP) if TP + FP else 0.0
@@ -115,13 +115,13 @@ def main():
     f1 = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
     fpr = FP / (FP + TN) if FP + TN else 0.0
 
-    print("\n" + "=" * 62 + "\n실험 3-2 대화 수준 탐지 결과\n" + "=" * 62)
-    print(f"혼동행렬  TP={TP}  FP={FP}  FN={FN}  TN={TN}")
-    print(f"정밀도 {prec:.3f} · 재현율 {rec:.3f} · F1 {f1:.3f} · 오탐률 {fpr:.3f}")
+    print("\n" + "=" * 62 + "\nExperiment 3-2 dialogue-level detection results\n" + "=" * 62)
+    print(f"confusion matrix  TP={TP}  FP={FP}  FN={FN}  TN={TN}")
+    print(f"precision {prec:.3f} · recall {rec:.3f} · F1 {f1:.3f} · false-positive rate {fpr:.3f}")
     if sec_match:
-        print(f"양성 적중 시  기밀 일치도 {st.mean(sec_match):.3f} · 경로 자카드 {st.mean(path_jac):.3f}")
+        print(f"for true positives  secret match {st.mean(sec_match):.3f} · path Jaccard {st.mean(path_jac):.3f}")
     if by_kind:
-        print("음성 유형별 오탐: " +
+        print("false positives by negative type: " +
               ", ".join(f"{k} {by_kind_fp[k]}/{by_kind[k]}" for k in by_kind))
 
 

@@ -84,26 +84,26 @@ def measure0(scen):
     for s in scen:
         ex = render(s.units, s.gt)
         v1 = MR.verify_mr1(ex, MR.mr1_reframe(ex))
-        tot["MR1_인물보존"] += 1; agg["MR1_인물보존"] += v1["인물_보존"]
+        tot["MR1_persons_kept"] += 1; agg["MR1_persons_kept"] += v1["persons_preserved"]
         r4, mp, _ = MR.mr4_rename(ex)
         v4 = MR.verify_mr4(ex, r4, mp)
-        tot["MR4_원래이름_0"] += 1; agg["MR4_원래이름_0"] += v4["원래이름_0개남음"]
+        tot["MR4_no_old_name"] += 1; agg["MR4_no_old_name"] += v4["no_original_name_left"]
         noised, picked = MR.mr3_inject_noise(s.units, 2)
         v3 = MR.verify_mr3(s.units, picked)
-        tot["MR3_추가_무관"] += 1; agg["MR3_추가_무관"] += v3["추가문장_모두_무관"]
+        tot["MR3_added_unrelated"] += 1; agg["MR3_added_unrelated"] += v3["all_added_unrelated"]
     return {k: (agg[k], tot[k]) for k in tot}
 
 
 if __name__ == "__main__":
     scen = load_patil()
-    print(f"실험 2 (실 spaCy MR) — Patil {len(scen)}개\n")
+    print(f"Experiment 2 (real spaCy MRs) — Patil, {len(scen)} scenarios\n")
 
-    print("[측정 0] 구현 검증 (변형이 명세대로 — 결정적)")
+    print("[Measure 0] implementation check (transformations as specified — deterministic)")
     for k, (ok, t) in measure0(scen).items():
-        print(f"   {'OK ' if ok==t else 'CHK'} {k:<16} {ok}/{t}")
+        print(f"   {'OK ' if ok==t else 'CHK'} {k:<20} {ok}/{t}")
 
     ok = sum(certify(ControlledObserver(s), s.units, set(s.gt))["certified"] for s in scen)
-    print(f"\n[측정 1] soundness (진성 유지 ≈ recall): {ok}/{len(scen)} = {ok/len(scen):.3f}")
+    print(f"\n[Measure 1] soundness (genuine paths kept ≈ recall): {ok}/{len(scen)} = {ok/len(scen):.3f}")
 
     kinds = ["surface", "entity", "noise", "cooccur"]
     caught, tot = Counter(), Counter()
@@ -113,12 +113,12 @@ if __name__ == "__main__":
             if not certify(ControlledObserver(s, brittle=k), s.units, set(s.gt))["certified"]:
                 caught[k] += 1
     cov = sum(caught.values()) / sum(tot.values())
-    print(f"\n[측정 2] coverage (스퓨리어스 검출 ≈ precision): {cov:.1%}")
+    print(f"\n[Measure 2] coverage (spurious paths caught ≈ precision): {cov:.1%}")
     for k in kinds:
-        note = "  ← 잔여 오류(우연 상관, 정직 보고)" if k == "cooccur" and caught[k] == 0 else ""
+        note = "  ← residual error (coincidental co-occurrence, reported as is)" if k == "cooccur" and caught[k] == 0 else ""
         print(f"   {k:<8} {caught[k]}/{tot[k]}{note}")
 
-    print(f"\n[측정 3] 비중복성 (검사 제거 시 해당 유형 통과):")
+    print(f"\n[Measure 3] non-redundancy (paths of this type that pass when the check is removed):")
     for k, mr in {"surface": "MR1", "entity": "MR4", "noise": "MR3"}.items():
         leak = sum(1 for s in scen if certify_drop(ControlledObserver(s, brittle=k), s.units, set(s.gt), mr))
-        print(f"   {mr} 제거 → {k} 유형 통과: {leak}/{len(scen)}")
+        print(f"   {mr} removed → {k} type passes: {leak}/{len(scen)}")

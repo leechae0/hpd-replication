@@ -39,8 +39,8 @@ def _read_parquet_rows(repo_id, revision, want):
                    if f.endswith(".parquet") and want in f.lower())
     if not parts:
         raise FileNotFoundError(
-            f"{repo_id}@{revision} 에서 '{want}' parquet 을 못 찾음. "
-            f"전체 parquet: {[f for f in files if f.endswith('.parquet')][:8]} …")
+            f"could not find parquet '{want}' in {repo_id}@{revision}. "
+            f"all parquet files: {[f for f in files if f.endswith('.parquet')][:8]} …")
     rows = []
     for f in parts:
         local = hf_hub_download(repo_id, f, repo_type="dataset", revision=revision)
@@ -53,7 +53,7 @@ def fetch_hotpotqa(limit=None):
     """hotpotqa/hotpot_qa (distractor, validation) parquet → saved in the original JSON schema.
     parquet columns: context={title:[...], sentences:[[...]]},
                   supporting_facts={title:[...], sent_id:[...]}"""
-    print("HotpotQA parquet 내려받는 중 (hotpotqa/hotpot_qa, distractor/validation)…")
+    print("Downloading HotpotQA parquet (hotpotqa/hotpot_qa, distractor/validation)…")
     rows = _read_parquet_rows("hotpotqa/hotpot_qa",
                               "refs/convert/parquet", "distractor/validation")
     out = []
@@ -69,7 +69,7 @@ def fetch_hotpotqa(limit=None):
                     "supporting_facts": supporting, "context": context})
     fp = os.path.join(DATA, "hotpot_dev_distractor_v1.json")
     json.dump(out, open(fp, "w"), ensure_ascii=False)
-    print(f"  저장: {fp}  ({len(out)}문항)")
+    print(f"  saved: {fp}  ({len(out)} questions)")
     return fp
 
 
@@ -78,7 +78,7 @@ def fetch_musique(limit=None):
     """MuSiQue-Answerable (validation) parquet → saved as the JSONL that load_musique reads.
     parquet columns: paragraphs=[{idx,title,paragraph_text,is_supporting},...],
                   question, answer, answerable"""
-    print("MuSiQue parquet 내려받는 중 (dgslibisey/MuSiQue, validation)…")
+    print("Downloading MuSiQue parquet (dgslibisey/MuSiQue, validation)…")
     # dgslibisey/MuSiQue is natively parquet → read it directly from the main branch.
     try:
         rows = _read_parquet_rows("dgslibisey/MuSiQue", "main", "valid")
@@ -100,7 +100,7 @@ def fetch_musique(limit=None):
                    "paragraphs": paras}
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
             n += 1
-    print(f"  저장: {fp}  ({n}문항)")
+    print(f"  saved: {fp}  ({n} questions)")
     return fp
 
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", choices=["hotpotqa", "musique"], default=None)
     ap.add_argument("--limit", type=int, default=None,
-                    help="문항 수 상한(빠른 확인용). 미지정 시 전량.")
+                    help="maximum number of questions (for a quick check). All questions if omitted.")
     a = ap.parse_args()
     try:
         if a.only in (None, "hotpotqa"):
@@ -116,8 +116,8 @@ if __name__ == "__main__":
         if a.only in (None, "musique"):
             fetch_musique(a.limit)
     except ModuleNotFoundError:
-        print("먼저 설치하세요:  pip install -U huggingface_hub pyarrow")
-    print("\n완료. 이제:")
+        print("Install first:  pip install -U huggingface_hub pyarrow")
+    print("\nDone. Next:")
     print("  python3 exp1_search.py \\")
     print("      --hotpotqa data/hotpot_dev_distractor_v1.json \\")
     print("      --musique  data/musique_ans_v1.0_dev.jsonl")

@@ -29,6 +29,7 @@ def render_indexed(turns):
     return "\n".join(f'[{i}] {t["speaker"]}: {t["text"]}' for i, t in enumerate(turns))
 
 def mentions(items, z):
+    # Content words: Hangul syllables (가-힣) are included because some observers answered in Korean.
     zt = set(re.findall(r"[가-힣a-z0-9]+", z.lower()))
     for it in items:
         w = set(re.findall(r"[가-힣a-z0-9]+", str(it).lower()))
@@ -78,6 +79,7 @@ def harvest_coverage(obs, turns, z, wrong_z):
     """Harvest spurious cases in the real setting: (a) a YES on a content-masked dialogue means the
     conclusion comes from prior knowledge; (b) a YES for an unrelated secret z' is a misjudgment."""
     harvested = caught = 0
+    # "(내용 은닉)" = "(content hidden)"; this placeholder is sent to the observer, so it is kept verbatim.
     masked = [{"speaker": t["speaker"], "text": "(내용 은닉)"} for t in turns]
     if obs.judge_excerpt(render(masked), z) == 1:
         harvested += 1
@@ -127,18 +129,18 @@ def report(done, label=""):
         if rec.get("b_ask") is not None: b_ask.append(rec["b_ask"]); b_loo.append(rec["b_loo"])
         harv += rec.get("harv", 0); caught += rec.get("caught", 0)
     n = max(len(done), 1)
-    print("\n" + "=" * 68 + f"\n실험 3 결과 {label}(집계 대상 {len(done)}개)\n" + "=" * 68)
-    print(f"[게이트] 유도 A/B/C = {dict(abc)} → 재현율(A율) = {abc['A']/n:.3f}")
-    if jacs: print(f"[탐색]  경로 자카드 평균 {st.mean(jacs):.3f} · 질의 평균 {st.mean(qtot):.0f} · 경로 확보 {len(jacs)}건")
-    if mono: print(f"[가정]  단조성 위반율 평균 {st.mean(mono):.4f}")
+    print("\n" + "=" * 68 + f"\nExperiment 3 results {label}({len(done)} scenarios aggregated)\n" + "=" * 68)
+    print(f"[gate] induction A/B/C = {dict(abc)} → recall (A rate) = {abc['A']/n:.3f}")
+    if jacs: print(f"[search]  mean path Jaccard {st.mean(jacs):.3f} · mean queries {st.mean(qtot):.0f} · paths found {len(jacs)}")
+    if mono: print(f"[assumption]  mean monotonicity-violation rate {st.mean(mono):.4f}")
     if cert_tot:
-        print(f"[검증]  전체 통과(진성 수용률) {cert_pass}/{cert_tot} = {cert_pass/cert_tot:.3f}")
-        print(f"[검증]  완화 기준(5중 4) {cert_pass4}/{cert_tot} = {cert_pass4/cert_tot:.3f}")
-        print(f"[관계별 불변율] " + " · ".join(
+        print(f"[validation]  all checks passed (genuine acceptance) {cert_pass}/{cert_tot} = {cert_pass/cert_tot:.3f}")
+        print(f"[validation]  relaxed criterion (four of five) {cert_pass4}/{cert_tot} = {cert_pass4/cert_tot:.3f}")
+        print(f"[per-check pass rate] " + " · ".join(
             f"{k} {mrpass[k]}/{cert_tot}({mrpass[k]/cert_tot:.2f})" for k in ("base", "single", "MR1", "MR3", "MR4")))
-    if b_ask: print(f"[베이스라인] 직접질문 {st.mean(b_ask):.3f} · leave-one-out {st.mean(b_loo):.3f}"
-                    + (f" (제안 {st.mean(jacs):.3f})" if jacs else ""))
-    if harv: print(f"[실가짜] 수확 {harv} · 검증이 걸러냄 {caught} ({caught/harv:.3f})")
+    if b_ask: print(f"[baseline] ask-the-model {st.mean(b_ask):.3f} · leave-one-out {st.mean(b_loo):.3f}"
+                    + (f" (proposed {st.mean(jacs):.3f})" if jacs else ""))
+    if harv: print(f"[real spurious] harvested {harv} · removed by validation {caught} ({caught/harv:.3f})")
 
 
 def main():
@@ -147,15 +149,15 @@ def main():
     ap.add_argument("--model", default=None)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--r", type=int, default=3)
-    ap.add_argument("--mono", type=int, default=8, help="단조성 표본 수(0이면 생략, 토큰 절약)")
-    ap.add_argument("--no-baseline", action="store_true", help="베이스라인 2종 생략(토큰 절약)")
-    ap.add_argument("--no-harvest", action="store_true", help="실가짜 coverage 생략(토큰 절약)")
-    ap.add_argument("--debug", action="store_true", help="시나리오별 정답 비밀·유도 후보·직접판정 출력(진단용)")
-    ap.add_argument("--raw", action="store_true", help="대화를 LLM 재작성 없이 값 그대로 렌더(값 보존·토큰 절약)")
-    ap.add_argument("--start", type=int, default=0, help="이 인덱스부터 시작")
-    ap.add_argument("--sleep", type=float, default=0.0, help="시나리오 간 대기 초(rate limit 완화)")
-    ap.add_argument("--report-only", action="store_true", help="실행 없이 진행 파일만 집계")
-    ap.add_argument("--elicit-only", action="store_true", help="완료된 시나리오의 유도(A/B/C)만 다시 측정해 갱신(정규화 파서 적용)")
+    ap.add_argument("--mono", type=int, default=8, help="number of monotonicity samples (0 skips the probe and saves tokens)")
+    ap.add_argument("--no-baseline", action="store_true", help="skip the two baselines (saves tokens)")
+    ap.add_argument("--no-harvest", action="store_true", help="skip the real-spurious coverage check (saves tokens)")
+    ap.add_argument("--debug", action="store_true", help="print the benchmark secret, induction candidates and direct judgment per scenario (diagnostic)")
+    ap.add_argument("--raw", action="store_true", help="render the dialogue with the values as is, without LLM rewriting (preserves values, saves tokens)")
+    ap.add_argument("--start", type=int, default=0, help="start from this index")
+    ap.add_argument("--sleep", type=float, default=0.0, help="seconds to wait between scenarios (eases rate limits)")
+    ap.add_argument("--report-only", action="store_true", help="aggregate the progress file only, without running")
+    ap.add_argument("--elicit-only", action="store_true", help="re-measure only the induction gate (A/B/C) of completed scenarios and update it (with the normalizing parser)")
     args = ap.parse_args()
 
     prog = _prog_path(args)
@@ -169,7 +171,7 @@ def main():
     if args.elicit_only:
         obs = Observer(backend, r=args.r)
         todo = [s for s in scen if s.sid in done]
-        print(f"유도 재측정 — {len(todo)}개 (backend={args.backend}, r={args.r}) · 진행 파일 {prog}")
+        print(f"Induction re-measurement — {len(todo)} scenarios (backend={args.backend}, r={args.r}) · progress file {prog}")
         changed = 0
         for k, s in enumerate(todo):
             turns = scenario_to_dialogue(backend, s, use_llm=not args.raw)
@@ -190,18 +192,18 @@ def main():
                     rec["cert4"] = sum(int(cd[kk]) for kk in ("base", "single", "MR1", "MR3", "MR4")) >= 4
                 else:
                     rec["jac"] = None
-            if (k + 1) % 10 == 0: print(f"  ...{k+1}/{len(todo)} (변경 {changed})")
+            if (k + 1) % 10 == 0: print(f"  ...{k+1}/{len(todo)} (changed {changed})")
             if args.sleep: time.sleep(args.sleep)
         with open(prog, "w", encoding="utf-8") as f:
             for sid in [s.sid for s in scen if s.sid in done]:
                 f.write(json.dumps(done[sid], ensure_ascii=False) + "\n")
-        print(f"유도 재측정 완료 · A/B/C 변경 {changed}건 · 진행 파일 갱신")
+        print(f"Induction re-measurement done · A/B/C changed for {changed} · progress file updated")
         report({k: v for k, v in done.items() if k in {s.sid for s in scen}}); return
 
     remain = [s for s in scen if s.sid not in done]
-    print(f"실험 3 종단 — 대상 {len(scen)}개 (backend={args.backend}, r={args.r}) · "
-          f"완료 {len(scen)-len(remain)} · 이번에 {len(remain)}개 · 진행 파일 {prog}")
-    print("  (끊기면 같은 명령을 다시 실행하면 완료분은 건너뛰고 이어서 돕니다)")
+    print(f"Experiment 3 end-to-end — {len(scen)} scenarios (backend={args.backend}, r={args.r}) · "
+          f"done {len(scen)-len(remain)} · this run {len(remain)} · progress file {prog}")
+    print("  (if interrupted, re-run the same command: completed scenarios are skipped)")
 
     for k, s in enumerate(remain):
         try:
@@ -214,8 +216,8 @@ def main():
             el = obs.elicit(full)
             direct = obs.judge_excerpt(full, z)
             if args.debug:
-                print(f"\n--- {s.sid} ---\n  정답 비밀: {z[:120]}\n  직접 판정: {'YES' if direct==1 else 'NO'}")
-                print(f"  유도 후보({len(el)}개): " + " | ".join(str(x)[:60] for x in el[:6]))
+                print(f"\n--- {s.sid} ---\n  benchmark secret: {z[:120]}\n  direct judgment: {'YES' if direct==1 else 'NO'}")
+                print(f"  induction candidates ({len(el)}): " + " | ".join(str(x)[:60] for x in el[:6]))
             if mentions(el, z): rec["abc"] = "A"
             elif direct == 1: rec["abc"] = "B"
             else:
@@ -232,7 +234,7 @@ def main():
                 rec["cert"] = bool(ok)
                 rec["cd"] = {kk: bool(cd[kk]) for kk in ("base", "single", "MR1", "MR3", "MR4")}
                 rec["cert4"] = sum(int(cd[kk]) for kk in ("base", "single", "MR1", "MR3", "MR4")) >= 4
-                if args.debug: print(f"  검증: {cd}")
+                if args.debug: print(f"  validation: {cd}")
             else:
                 rec["jac"] = None
             if args.mono > 0:
@@ -246,11 +248,11 @@ def main():
                 h, c = harvest_coverage(obs, turns, z, scen[(k + 1) % len(scen)].secret)
                 rec["harv"] = h; rec["caught"] = c
             _save(prog, rec); done[s.sid] = rec
-            if (k + 1) % 5 == 0: print(f"  ...{k+1}/{len(remain)} (누적 완료 {len(done)})")
+            if (k + 1) % 5 == 0: print(f"  ...{k+1}/{len(remain)} (completed so far {len(done)})")
             if args.sleep: time.sleep(args.sleep)
         except Exception as e:
-            print(f"  [중단] {s.sid}에서 한도/오류: {str(e)[:140]}")
-            print(f"  → 완료분 {len(done)}개로 집계합니다. 한도 리셋 후 같은 명령으로 이어서 돌리세요.")
+            print(f"  [stopped] limit/error at {s.sid}: {str(e)[:140]}")
+            print(f"  → aggregating the {len(done)} completed scenarios. After the limit resets, re-run the same command to resume.")
             break
 
     report({k: v for k, v in done.items() if k in {s.sid for s in scen}})

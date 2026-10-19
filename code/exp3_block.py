@@ -87,14 +87,14 @@ def main():
     ap.add_argument("--limit", type=int, default=30)
     ap.add_argument("--start", type=int, default=0)
     ap.add_argument("--r", type=int, default=5)
-    ap.add_argument("--raw", action="store_true", help="값 그대로 렌더(3-1과 동일, 권장)")
+    ap.add_argument("--raw", action="store_true", help="render values as is (same as Experiment 3-1; recommended)")
     ap.add_argument("--sleep", type=float, default=0.0)
     args = ap.parse_args()
 
     backend = make_backend(args.backend, args.model)
     scen = load_patil()
     scen = scen[args.start:args.start + args.limit] if args.limit else scen[args.start:]
-    print(f"실험 3-3 차단 — {len(scen)}개 시나리오 (backend={args.backend}, r={args.r})")
+    print(f"Experiment 3-3 blocking — {len(scen)} scenarios (backend={args.backend}, r={args.r})")
 
     n_cert = 0            # number of scenarios with at least one certified path
     sizes, ratios = [], []
@@ -131,20 +131,20 @@ def main():
             if (k + 1) % 5 == 0: print(f"  ...{k+1}/{len(scen)}")
             if args.sleep: time.sleep(args.sleep)
         except Exception as e:
-            print(f"  [중단] {k+1}번째에서 한도/오류: {str(e)[:120]}")
-            print(f"  → 여기까지 {done}개 완료분으로 집계합니다.")
+            print(f"  [stopped] limit/error at item {k+1}: {str(e)[:120]}")
+            print(f"  → aggregating the {done} completed scenarios.")
             break
 
-    print("\n" + "=" * 62 + "\n실험 3-3 차단(완화) 결과\n" + "=" * 62)
-    print(f"인증 경로 확보 시나리오: {n_cert}/{done} (경로 2개 이상: {multi})")
+    print("\n" + "=" * 62 + "\nExperiment 3-3 blocking (mitigation) results\n" + "=" * 62)
+    print(f"scenarios with a validated path: {n_cert}/{done} (two or more paths: {multi})")
     if sizes:
         import statistics as st
-        print(f"차단 집합 크기 |B| 평균 {st.mean(sizes):.2f} · 대화 대비 비율 {st.mean(ratios):.1%}")
-        print(f"직접 판정 YES율  차단 전 {pre_yes}/{n_cert} → 차단 후 {post_yes}/{n_cert}"
-              f"  (잔여 누출-판정 {post_yes/n_cert:.3f})")
-        print(f"차단 후 유도 재발견율 {post_elicit}/{n_cert} = {post_elicit/n_cert:.3f}  (잔여 누출-유도)")
-        print("해석: 차단 후 두 잔여율이 낮을수록 표적 완화가 실효적. 남는 값은")
-        print("      사전지식 기반 재추론의 실측치로서 §VI 한계 논의와 연결해 보고.")
+        print(f"blocking set size |B| mean {st.mean(sizes):.2f} · fraction of dialogue {st.mean(ratios):.1%}")
+        print(f"direct-judgment YES rate  before blocking {pre_yes}/{n_cert} → after blocking {post_yes}/{n_cert}"
+              f"  (residual leakage, judgment {post_yes/n_cert:.3f})")
+        print(f"re-induction rate after blocking {post_elicit}/{n_cert} = {post_elicit/n_cert:.3f}  (residual leakage, induction)")
+        print("Reading: the lower both residual rates after blocking, the more effective the targeted mitigation. What remains")
+        print("      measures re-inference from prior knowledge (see the limitations discussion).")
 
 
 if __name__ == "__main__":

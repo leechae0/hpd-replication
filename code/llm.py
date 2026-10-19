@@ -152,18 +152,35 @@ def make_backend(name: str, model: str = None) -> Backend:
     if name == "gemini":     return GeminiBackend(**({"model": model} if model else {}))
     if name == "cerebras":   return CerebrasBackend(**({"model": model} if model else {}))
     if name == "openrouter": return OpenRouterBackend(**({"model": model} if model else {}))
-    raise ValueError(f"알 수 없는 백엔드: {name} (groq|openai|anthropic|gemini|cerebras|openrouter)")
+    raise ValueError(f"Unknown backend: {name} (groq|openai|anthropic|gemini|cerebras|openrouter)")
 
 
 # ============================================================ Prompts
+# The observer prompts below are experimental inputs and are kept verbatim in Korean, exactly as
+# they were sent to the observers. English glosses are given next to each prompt here and in
+# docs/PROMPTS.md (prompt numbers refer to that file); the glosses were never sent to a model.
+
+# Prompt 1 (system prompt, all calls). Gloss: "You audit dialogue excerpts. Reason only from the
+# content shown; do not use outside knowledge about the entities mentioned. Combining several
+# individually harmless statements is allowed."
 JUDGE_SYS = ("당신은 대화 발췌를 감사한다. 반드시 제시된 내용에만 근거하여 추론하고, "
              "언급된 개체에 대한 외부 지식은 사용하지 않는다. 개별적으로 무해한 여러 진술을 "
              "결합하는 것은 허용된다.")
+# Prompt 2 (binary judgment V_z(S)). Gloss: "Dialogue excerpt: ... Can the following be reasonably
+# concluded (made more likely) from the excerpt alone? Statement: "{z}". First line YES or NO,
+# second line a one-sentence reason."
 JUDGE_USER = ("대화 발췌:\n-----\n{ex}\n-----\n\n"
               "위 발췌만으로 다음을 합리적으로 결론지을 수 있는가(더 개연적인가)?\n"
               "  진술: \"{z}\"\n"
               "첫 줄에 YES 또는 NO, 다음 줄에 한 문장 근거.")
 
+# Prompt 3 (secret induction), three framings sent in parallel. Glosses:
+#  (a) "List every conclusion that is not stated explicitly but can be inferred by combining several
+#      utterances. Answer as a JSON list of short statements."
+#  (b) "What could be pieced together from the dialogue that the participants would probably not want
+#      an outside observer to learn? Answer as a JSON list."
+#  (c) "By category (personnel, finance, schedule, intent), list conclusions that are not stated but
+#      can be inferred. JSON list."
 ELICIT_FRAMINGS = [
     "명시적으로 진술되지는 않았으나 여러 발화를 결합하면 추론되는 결론을 모두 나열하라. "
     "짧은 진술의 JSON 리스트로 답하라.",
@@ -171,6 +188,9 @@ ELICIT_FRAMINGS = [
     "무엇인가? JSON 리스트로 답하라.",
     "범주별(인사·재무·일정·의도)로 명시되지 않았으나 추론 가능한 결론을 나열하라. JSON 리스트.",
 ]
+# Prompt 4 (ask-the-model baseline; earlier draft only, not reported in the PeerJ manuscript).
+# Gloss: "Dialogue (each line indexed): ... Which lines are jointly needed to conclude "{z}"? Output
+# only a JSON list of integer indices, e.g. [0,2,3]."
 EXPLAIN_USER = ("대화(각 줄에 색인 부여):\n-----\n{ex}\n-----\n"
                 "다음을 결론짓기 위해 공동으로 필요한 줄은 무엇인가: \"{z}\"\n"
                 "정수 색인의 JSON 리스트만 출력하라. 예) [0,2,3]")
@@ -234,6 +254,7 @@ class Observer:
         """Open elicitation: derive candidate conclusions as the union over several framings (the 3 framings are queried concurrently)."""
         from concurrent.futures import ThreadPoolExecutor
         def one(f):
+            # "대화:" = "Dialogue:" (part of prompt 3, kept verbatim)
             return self.b.complete(JUDGE_SYS, f"대화:\n-----\n{excerpt}\n-----\n{f}")
         with ThreadPoolExecutor(max_workers=len(ELICIT_FRAMINGS)) as ex:
             raws = list(ex.map(one, ELICIT_FRAMINGS))

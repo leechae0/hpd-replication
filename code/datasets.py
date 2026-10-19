@@ -108,6 +108,8 @@ def load_hotpotqa(path):
                 gt.append(i)
         if not gt or len(gt) == len(units):
             continue
+        # Judged statement z for the controlled check, kept verbatim in Korean as it was sent to the
+        # observer. Gloss: "The answer to the question '<question>' is <answer>."
         secret = f"질문 '{rec.get('question','').strip()}'의 답은 {rec.get('answer','').strip()}이다."
         out.append(Scenario(str(rec.get("_id", "hotpot")), units, secret, frozenset(gt)))
     return out
@@ -133,6 +135,7 @@ def load_musique(path, min_hops=2, max_hops=4, limit=None):
         if not gt or len(gt) == len(units) or not (min_hops <= len(gt) <= max_hops):
             continue
         q = rec.get("question", "").strip().rstrip("?"); a = rec.get("answer", "").strip()
+        # Judged statement z, kept verbatim in Korean. Gloss: "The answer to '<question>?' is <answer>."
         out.append(Scenario(str(rec.get("id", "musique")), units,
                             f"'{q}?'의 답은 {a}이다.", frozenset(gt)))
         if limit and len(out) >= limit:
@@ -163,6 +166,12 @@ def load_magpie(path, limit=None):
 
 
 # ------------------------------------------------------------ Patil -> natural-language dialogue (real LLM)
+# Prompt 5 in docs/PROMPTS.md (earlier draft only; every PeerJ experiment uses --raw and never sends
+# it). Kept verbatim in Korean. Gloss: system "You turn one structured record into a single line of
+# workplace dialogue containing only that record's information."; user "Speaker: {agent}. Record
+# held: '{key}' -- {text}. Write one line in which {agent} naturally mentions only the concrete
+# information of this record. Do not mention other records or speculation. Output the sentence only,
+# without a speaker prefix."
 GEN_SYS = "당신은 하나의 구조화 레코드를 직장 대화 한 줄로 바꾼다. 그 레코드의 정보만 담아야 한다."
 GEN_USER = ("화자: {agent}\n보유 레코드: '{key}' — {text}\n\n"
             "{agent}가 이 레코드의 구체적 정보만을 자연스럽게 언급하는 대화 한 줄을 작성하라. "
@@ -185,7 +194,7 @@ def scenario_to_dialogue(backend, scenario, use_llm=True):
 
 if __name__ == "__main__":
     scen = load_patil()
-    print(f"Patil 로드: {len(scen)}개 시나리오")
+    print(f"Patil loaded: {len(scen)} scenarios")
     s = scen[0]
-    print(f"  예: {s.sid} | 단서 {len(s.units)}개 | 정답 색인 {sorted(s.gt)}")
-    print(f"     비밀: {s.secret[:70]}...")
+    print(f"  example: {s.sid} | {len(s.units)} cues | annotated cue indices {sorted(s.gt)}")
+    print(f"     secret: {s.secret[:70]}...")

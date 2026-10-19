@@ -16,6 +16,12 @@ Changes relative to v1 (after annotator feedback, 2026-09-30):
     Changed words are coloured by a plain difflib word diff, independent of the transformation code.
 Each workbook has one input column (header 'judgment', in Korean) with a drop-down, and a hidden '_key' sheet used by
 collect_annotations.py to map rows back to (sid, observer) / (sid, mr).
+
+Language: the annotators are Korean speakers, so the text that appears inside the workbooks
+(file and sheet names, column headers, instructions, drop-down messages) is the annotation
+instrument and is kept in Korean, exactly as the annotators saw it. annotation/annotator_guide_en.md
+gives an English translation of the full instructions, and docs/CODEBOOK.md glosses every sheet
+name and column header. All code comments and console output are in English.
 """
 import argparse, csv, difflib, json, os, random, re, sys, unicodedata
 
@@ -52,6 +58,8 @@ OBS_NAME = {"openai_gpt-4o-mini-2024-07-18": "GPT-4o-mini",
 
 
 # ---------------------------------------------------------------- Task 1 helpers
+# Some observers prefixed candidates with "category ... conclusion ..." in English or Korean
+# ("범주" = category, "결론" = conclusion); the prefix is stripped for display.
 PREFIX = re.compile(r"^\s*(?:category|범주)\s+(.+?)\s+(?:conclusion|inference|statement|결론)\s+(.*)$", re.S)
 SNAKE = re.compile(r"\b[a-z]+(?:_[a-z0-9]+)+\b")
 
@@ -263,6 +271,9 @@ def rich_diff(a, b):
     return ra, rb
 
 
+# Instrument text (Korean). Q_KO: the question per transformation, glossed in annotation/README.md
+# (Task 2 table). MR_KO: row labels "MR1 rephrasing", "MR3 irrelevant-sentence insertion",
+# "MR4 person-name substitution".
 Q_KO = {"MR1": "표현만 바뀌고 사실·사람·숫자는 그대로인가?",
         "MR3": "끼워 넣은 문장이 대화 내용·정답과 무관한가?",
         "MR4": "사람 이름만 일관되게 바뀌고 나머지 값(ID·주소·금액·회사명 등)은 그대로인가?"}
@@ -359,7 +370,7 @@ def main():
     ap.add_argument("--mode", choices=["full", "sample", "filled"], default="full",
                     help="full: 348/90 blank rows (annotator 1); sample: only the rows annotator 1 labelled, blank "
                          "(for a second annotator; first labels are not shown); filled: those rows with annotator 1's labels")
-    ap.add_argument("--suffix", default="", help="appended to the file names, e.g. _2차판정자")
+    ap.add_argument("--suffix", default="", help="appended to the file names, e.g. _ann2")
     a = ap.parse_args()
     global MODE, SUFFIX
     MODE, SUFFIX = a.mode, a.suffix

@@ -35,8 +35,9 @@ consult each other, search the web, or use AI tools.
 
 | Path | Content |
 |---|---|
-| `annotator_guide_ko.md` | the instructions given to annotators (Korean); summarized in English above |
-| `workbooks/` | blank workbooks for all rows (348 for Task 1, 90 for Task 2), written by `code/make_annotation_xlsx.py`. File names and sheet text are in Korean: `작업1_유도판정` = Task 1 secret induction, `작업2_변환판정` = Task 2 transformation fidelity |
+| `annotator_guide_ko.md` | the instructions given to annotators, in Korean as they received them |
+| `annotator_guide_en.md` | full English translation of `annotator_guide_ko.md` (not shown to the annotators) |
+| `workbooks/` | blank workbooks for all rows (348 for Task 1, 90 for Task 2), written by `code/make_annotation_xlsx.py`. File names and sheet text are in Korean, as the annotators saw them: `작업1_유도판정` = Task 1 secret induction, `작업2_변환판정` = Task 2 transformation fidelity; every sheet name and column header is glossed in `docs/CODEBOOK.md` |
 | `second_annotator/task1_induction_second_annotator.xlsx` | workbook returned by the second annotator: the 108 sampled Task 1 rows, labelled blind |
 | `second_annotator/task2_transformation_second_annotator.xlsx` | workbook returned by the second annotator: the 90 Task 2 rows, labelled blind |
 
